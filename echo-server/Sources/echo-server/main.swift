@@ -1,6 +1,15 @@
 import Socket
 import Foundation
 
+var port = 7667
+var arguments = CommandLine.arguments
+if !arguments.isEmpty {
+    if arguments.count > 1 {
+        port = Int(arguments[1])!
+    }
+    
+}
+
 // Creo el socket (canal de comunicaciones) abro el del servidor
 // try por si falla, reservo un recurso de la máquiona para nosotros
 // abre para una conexión TCP
@@ -9,7 +18,7 @@ import Foundation
 // Usamos UDP --> No hay control de conexión o errores
 // .inet --> Internet
 // Socket UDP para ESCUCHAR (es la mitad del servidor)
-let port = 7667 // Puerto conocido para escuchar
+ // Puerto conocido para escuchar
 do {
     let serverSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
     try serverSocket.listen(on: port)
