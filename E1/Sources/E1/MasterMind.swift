@@ -86,11 +86,12 @@ struct MasterMindGame {
     
     var maxTurns = 10
     var currentTurn = 0
+    var Ncomb = 4
     
     static func randomCode(colors: Int) -> [MasterMindColor] {
        var combinacion = String()
        let opciones = ["r","g","b","y","w","k"]
-       for _ in 1...4 {
+       for _ in 0...colors {
             let random_color = opciones.randomElement()
             combinacion += random_color!
        }
@@ -100,7 +101,7 @@ struct MasterMindGame {
     
     init(_ secretCode: String? = nil) {
         if (secretCode == nil) {
-           self.secretCode = MasterMindGame.randomCode(colors: 4)
+           self.secretCode = MasterMindGame.randomCode(colors: self.Ncomb)
         } else {
             
             do {
@@ -118,7 +119,7 @@ extension MasterMindGame {
     func countExactMatches (_ code:[MasterMindColor]) -> Int {
         var aciertos: Int = 0
         
-        for i in 0...3 {
+        for i in 0...(Ncomb - 1) {
             if (self.secretCode[i] == code[i]) {
                 aciertos += 1
             }
@@ -161,10 +162,12 @@ extension MasterMindGame {
             let userComb = try guess.toMasterMindColorCombination()
             
             // Compruebo si tiene el número correcto, son 4 números
-            let userMax = userComb.endIndex - 1
-            if (userMax != (self.secretCode.count - 1)) {
+            //let userMax = userComb.endIndex - 1
+            print(self.secretCode.count)
+            
+            if (self.Ncomb != (self.secretCode.count)) {
                 // número de colores incorrecto
-                print("Debes hacer una apuesta con \(self.secretCode.count) colores. Por favor, prueba de nuevo.")
+                print("Debes hacer una apuesta con \(Ncomb) colores. Por favor, prueba de nuevo.")
             } else {
                 // Compruebo si no estoy en el último turno o ha acertado
                 if (self.currentTurn < self.maxTurns){

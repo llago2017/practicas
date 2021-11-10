@@ -13,6 +13,7 @@ if !arguments.isEmpty {
         print("Numero de turnos: \(arguments[1])")
         testGame.maxTurns = Int(arguments[1])!
         print("Numero de codigo: \(arguments[2])")
+        testGame.Ncomb = Int(arguments[2])!
         //testGame.secretCode.count = Int(arguments[2])!
         
     default:
