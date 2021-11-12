@@ -38,6 +38,7 @@ do {
                 print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
                 let message = String(decoding: buffer, as: UTF8.self)
                 print("Message: \(message)")
+                try serverSocket.write(from: message, to: clientAddress!)
                 // El mensaje siempre es un array de bytes y hay que decodificarlos para entenderlos
             }
             buffer.removeAll()
