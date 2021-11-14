@@ -3,6 +3,7 @@ var option: String
 var message: ArraySlice<String>
 var message_string: String = ""
 var message_encode: String = ""
+var message_decode: String = ""
 
 let code = [
 "a" : "b", "b" : "c", "c" : "d", "d" : "e",
@@ -24,9 +25,23 @@ if arguments.count > 1 {
         message_string += palabra + " "
     }
 
+     print("Opcion elegida: \(option)")
+
     switch option {
         case "decode":
-            print("En proceso")
+            for letra in message_string {
+                let keys = code // This is a [String:int] dictionary
+                    .filter { (k, v) -> Bool in v == String(letra) }
+                    .map { (k, v) -> String in k }
+                //print(keys)
+                for palabra in keys {
+                    message_decode += palabra
+                }
+                
+            }
+
+            
+            print(message_decode)
             
         break;
 
@@ -35,6 +50,7 @@ if arguments.count > 1 {
                 //print(type(of:letra));
                 message_encode += code[String(letra)]!
             }
+            print(message_encode)
 
         break;
 
@@ -43,10 +59,7 @@ if arguments.count > 1 {
             
         
     }
-
-    print("Opcion elegida: \(option)")
-    print(message_encode)
-    
+  
 }
 
 
