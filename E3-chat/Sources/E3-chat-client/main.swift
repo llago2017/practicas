@@ -1,5 +1,6 @@
 import Socket
 import Glibc
+import Foundation
 
 print("Cliente")
 print("Bienvenid@ al chat! Elija una de las siguientes opciones: ")
@@ -16,16 +17,21 @@ do {
             exit(1)
     }
 
+    let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
     switch opcion {
     case "1":
         print("Inserte String: ")
-        message = readLine()!
-        let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
+        message = (readLine()!)
+        //let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
         try clientSocket.write(from: message, to: serverAddress)
         break;
 
     case "2":
         print("Inserte número entero")
+        let number = readLine()!
+        var buffer = Data(capacity: 1000)
+            withUnsafeBytes(of: Int(number)) { buffer.append(contentsOf: $0) }
+        try clientSocket.write(from: buffer, to: serverAddress)
         break;
 
     case "3":
