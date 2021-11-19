@@ -27,6 +27,15 @@ class ChatClient {
     
     func run() throws {
         // Your code here
+        print("Iniciando cliente")
+        
+        if isReader {
+            print("El usuario es un lector")
+            
+        } else {
+            print("El usuario es un escritor")
+            
+        }
     }
 }
 
