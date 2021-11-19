@@ -13,13 +13,13 @@ if !arguments.isEmpty {
         port = Int(arguments[2])!
         nick = String(arguments[3])
         print("Servidor: \(host), puerto: \(port), usuario: \(nick)")
+
         // Create ChatClient
         let MyClient = ChatClient(host: host, port: port, nick: nick)
         do {
             try MyClient.run()
         } catch {
             print("Error")
-            
         }
         
 

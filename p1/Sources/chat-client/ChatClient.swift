@@ -28,14 +28,37 @@ class ChatClient {
     func run() throws {
         // Your code here
         print("Iniciando cliente")
-        
-        if isReader {
-            print("El usuario es un lector")
+        do {
+            guard let serverAddress = Socket.createAddress(for: host, on: Int32(port)) else {
+                print("Error creating Address")
+                exit(1)
+            }
+            let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
+
+            if isReader {
+                print("El usuario es un lector")
+                 
             
-        } else {
-            print("El usuario es un escritor")
+            } else {
+                print("El usuario es un escritor")
+                //ChatMessage.Init(nick)
+                print("Escriba su mensaje: ")   
+                let message = readLine()!
+                try clientSocket.write(from: message, to: serverAddress)
+            if message == ".quit" {
+                print("Hasta pronto")
+                exit(1)
+                
+            }
             
         }
+
+            
+        } catch let error {
+            print("Connection error: \(error)")
+        }
+        
+        
     }
 }
 
