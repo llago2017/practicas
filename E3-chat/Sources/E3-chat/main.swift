@@ -38,9 +38,28 @@ do {
 
                 
                 print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
-                let message = String(decoding: buffer, as: UTF8.self)
-                print("Message: \(message)")
-                try serverSocket.write(from: message, to: clientAddress!)
+
+                let str = buffer.withUnsafeBytes {
+                        String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                    }
+                    
+                print("Recibido: \(str)")
+
+                do {
+                     if Int(str) != nil {
+                         let result = Int(str)!*2
+                         //withUnsafeBytes(of: Int(result)) { buffer.append(contentsOf: $0) }
+                         try serverSocket.write(from: String(result), to: clientAddress!)
+                         print(result)
+                     }
+                } catch {
+                    print("Error")
+                    
+                }
+
+               
+                
+                //try serverSocket.write(from: message, to: clientAddress!)
                 // El mensaje siempre es un array de bytes y hay que decodificarlos para entenderlos
             }
             buffer.removeAll()

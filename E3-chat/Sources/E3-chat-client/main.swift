@@ -17,21 +17,31 @@ do {
             exit(1)
     }
 
+    var buffer = Data(capacity: 1000)
     let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
     switch opcion {
     case "1":
         print("Inserte String: ")
         message = (readLine()!)
         //let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
+        //message.utf8CString.withUnsafeBytes
         try clientSocket.write(from: message, to: serverAddress)
         break;
 
     case "2":
         print("Inserte número entero")
-        let number = readLine()!
-        var buffer = Data(capacity: 1000)
-            withUnsafeBytes(of: Int(number)) { buffer.append(contentsOf: $0) }
-        try clientSocket.write(from: buffer, to: serverAddress)
+        let number = readLine()!            
+        
+            // Envío
+            try clientSocket.write(from: number, to: serverAddress)
+
+            // Recibo
+            let (bytesRead, serverAddress) = try clientSocket.readDatagram(into: &buffer)
+            let str = buffer.withUnsafeBytes {
+                        String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                    }
+                    
+                print("Doble: \(str)")
         break;
 
     case "3":
