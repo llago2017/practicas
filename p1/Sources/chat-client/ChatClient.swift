@@ -37,14 +37,25 @@ class ChatClient {
 
             // Buffer para mensaje init
 
-                let tests = ChatMessage.Init
+            let tests = ChatMessage.Init
             var buffer = Data(capacity: 1000)
             withUnsafeBytes(of: tests) { buffer.append(contentsOf: $0) }
             nick.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
             try clientSocket.write(from: buffer , to: serverAddress)
 
             if isReader {
-                print("El usuario es un lector") 
+                print("El usuario es un lector")
+                // Recibo
+                repeat {
+                    let (bytesRead, serverAddress) = try clientSocket.readDatagram(into: &buffer)
+                let str = buffer.withUnsafeBytes {
+                        String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                }
+                    
+                print("Doble: \(str)")
+                    
+                } while true
+                
                  
             
             } else {

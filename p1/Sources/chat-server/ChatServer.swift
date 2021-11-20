@@ -59,6 +59,14 @@ class ChatServer {
                     switch value {
                     case .Init:
                         print("INIT received from \(msg)")
+                        var isReader: Bool { return msg == "reader" }
+
+                        if isReader {
+                            try! readers.addClient(address: clientAddress!, nick: msg)
+                        } else {
+                            try! writers.addClient(address: clientAddress!, nick: msg)
+                        }
+                        
                         
                     default:
                         print("En proceso")
