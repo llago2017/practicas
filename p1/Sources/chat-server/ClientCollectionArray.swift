@@ -21,13 +21,24 @@ struct ClientCollectionArray {
 
 /// ClientCollection functions have to be implemented here
 extension ClientCollectionArray: ClientCollection { // Implementación para lectores y escritores
-    mutating func addClient(address: Socket.Address, nick: String) throws {}
+    mutating func addClient(address: Socket.Address, nick: String) throws {
+        // Creo el struct de cliente y lo añado al array con todos los clientes
+        let entrada = Client(address: address, nick: nick)
+        clients.append(entrada)
+    }
     
     /**
      Remove the client(s) specified by the nick.
      Throws `ClientCollectionError.noSuchClient` if the client does not exist.
      */
-    mutating func removeClient(nick: String) throws {}
+    mutating func removeClient(nick: String) throws {
+
+        for client in clients {
+            if client.nick == nick {
+                print("Borrar")
+            }            
+        }
+    }
     
     /**
      Search by address. Returns the nickname, or `nil` if the address was not found in the list.
