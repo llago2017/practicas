@@ -50,16 +50,24 @@ class ChatServer {
                     print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
 
                     
-                   var offset = 0
                    let value = buffer.withUnsafeBytes {
                         $0.load(as: ChatMessage.self)
                     }
-                    var count = MemoryLayout<ChatMessage>.size
-                    offset += count + 1
-                    print("String: \(value)")
-                    
+                    //print("String: \(value)")
                     let msg = String(decoding: buffer, as: UTF8.self)
-                    print("Mensaje: \(msg)")
+
+                    switch value {
+                    case .Init:
+                        print("INIT received from \(msg)")
+                        
+                    default:
+                        print("En proceso")
+                        
+                        
+                    }
+                    
+                    
+                    //print("Mensaje: \(msg)")
                     
                     
                     //let message = String(decoding: buffer, as: UTF8.self)

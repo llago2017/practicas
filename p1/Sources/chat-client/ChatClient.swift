@@ -35,19 +35,20 @@ class ChatClient {
             }
             let clientSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
 
+            // Buffer para mensaje init
+
+                let tests = ChatMessage.Init
+            var buffer = Data(capacity: 1000)
+            withUnsafeBytes(of: tests) { buffer.append(contentsOf: $0) }
+            nick.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
+            try clientSocket.write(from: buffer , to: serverAddress)
+
             if isReader {
                 print("El usuario es un lector") 
                  
             
             } else {
                 print("El usuario es un escritor")
-                let tests = ChatMessage.Init
-
-                // Buffer para mensaje init
-                var buffer = Data(capacity: 1000)
-                withUnsafeBytes(of: tests) { buffer.append(contentsOf: $0) }
-                nick.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
-                try clientSocket.write(from: buffer , to: serverAddress)
 
                 print("Escriba su mensaje: ")   
                 let message = readLine()!
