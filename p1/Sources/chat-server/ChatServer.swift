@@ -40,7 +40,9 @@ class ChatServer {
 
             print("Listening on \(port)")
             
-            var buffer = Data(capacity: 1000) 
+            var buffer = Data(capacity: 1000)
+            var client_nicks = [String]()
+            var found = false;
             repeat {
                 let (bytesRead, clientAddress) = try serverSocket.readDatagram(into: &buffer)
                 // Cuando se conecta uno me dice la dirección y los bytes que envía
@@ -64,8 +66,21 @@ class ChatServer {
                         if isReader {
                             try! readers.addClient(address: clientAddress!, nick: msg)
                         } else {
-                            try! writers.addClient(address: clientAddress!, nick: msg)
+                            for name in client_nicks {
+                                if name == msg {
+                                  print("INIT received from \(msg). IGNORED, nick already used")
+                                  found = true 
+                                }
+                            }
+                            
+                            if !found {
+                               try! writers.addClient(address: clientAddress!, nick: msg)
+                               client_nicks.append(msg)
+                            }
+                                    
                         }
+                            
+
                         break;
                     
                     case .Writer:
