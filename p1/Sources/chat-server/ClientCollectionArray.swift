@@ -24,6 +24,13 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
     mutating func addClient(address: Socket.Address, nick: String) throws {
         // Creo el struct de cliente y lo añado al array con todos los clientes
         let entrada = Client(address: address, nick: nick)
+
+        // Busco si el nick esta en la lista
+        for client in clients {
+            if (client.nick == nick) && uniqueNicks {
+                throw ClientCollectionError.repeatedClient
+            }            
+        }
         
         clients.append(entrada)
         

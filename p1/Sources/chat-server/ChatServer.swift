@@ -66,8 +66,16 @@ class ChatServer {
                             print("INIT received from \(msg)")
                             try! readers.addClient(address: clientAddress!, nick: msg)
                         } else {
+
+                            do {
+                                try writers.addClient(address: clientAddress!, nick: msg)
+                                print("INIT received from \(msg)")
+                            } catch {
+                                print("INIT received from \(msg). IGNORED, nick already used")
+                            }
                             
-                            let usedClient = writers.searchNick(nick: msg)
+                            
+                            /*let usedClient = writers.searchNick(nick: msg)
                             
                             if usedClient == nil {
                                print("INIT received from \(msg)")
@@ -75,7 +83,7 @@ class ChatServer {
                                client_nicks.append(msg)
                             } else {
                                print("INIT received from \(msg). IGNORED, nick already used") 
-                            }
+                            }*/
                                     
                         }
                             
