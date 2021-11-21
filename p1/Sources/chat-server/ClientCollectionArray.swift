@@ -23,17 +23,21 @@ struct ClientCollectionArray {
 extension ClientCollectionArray: ClientCollection { // Implementación para lectores y escritores
     mutating func addClient(address: Socket.Address, nick: String) throws {
         // Creo el struct de cliente y lo añado al array con todos los clientes
-        let entrada = Client(address: address, nick: nick)
+        let entrada = Client(address: address, nick: nick)                
 
-        // Busco si el nick esta en la lista
-        for client in clients {
-            if (client.nick == nick) && uniqueNicks {
-                throw ClientCollectionError.repeatedClient
-            }            
+        if !uniqueNicks {
+            clients.append(entrada)
+        } else {
+            for client in clients {
+                if (client.nick == nick) {
+                    throw ClientCollectionError.repeatedClient
+                } 
+                       
+            } 
+            clients.append(entrada)
+
         }
-        
-        clients.append(entrada)
-        
+        //print(clients)
         
     }
     
@@ -66,6 +70,8 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
             }
         }
         
+        //DUDA
+        //throw ClientCollectionError.noSuchClient
         return nil
     }
     
@@ -73,17 +79,16 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
      Runs `body` closure for each element in the list.
      `rethrows` means that `forEach` will throw if the closure `throws`.
      */
-    func forEach(_ body: (Socket.Address, String) throws -> Void) rethrows {}
-
-    func searchNick(nick: String) -> String? {
+    func forEach(_ body: (Socket.Address, String) throws -> Void) rethrows {
+        print("Se recibe algo")
+        print(clients)
+        
         for client in clients {
-            if client.nick == nick {
-                return nick
-            }            
+           try! body(client.address, "test")
         }
-
-        return nil
+        
     }
+
 }
 
 // Add additional extensions if you need to

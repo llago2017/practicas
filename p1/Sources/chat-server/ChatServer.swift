@@ -55,11 +55,11 @@ class ChatServer {
 
                     switch value {
                     case .Init:
-                        var isReader: Bool { return msg == "reader" }
-
+                        var isReader: Bool { return msg == "\0reader\0" } // DUDA
+                        
                         if isReader {
                             print("INIT received from \(msg)")
-                            try! readers.addClient(address: clientAddress!, nick: msg)
+                            try self.readers.addClient(address: clientAddress!, nick: msg)
                         } else {
 
                             do {
@@ -77,7 +77,23 @@ class ChatServer {
                     case .Writer:
                          let Wnick = writers.searchClient(address:clientAddress!)
                          if Wnick != nil {
-                           print("WRITER received from \(Wnick!): \(msg)")  
+                           print("WRITER received from \(Wnick!): \(msg)")
+
+                           func sendAll(address: Socket.Address, nick: String) {
+                                // Envio el mensaje
+                                var sendBuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                nick.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                nick.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                do {
+                                    try serverSocket.write(from: sendBuffer, to: address)
+                                } catch {
+                                    print("Error")
+                                    
+                                }
+                           }
+                           readers.forEach(sendAll)
+                           
                          }
                          
                         
