@@ -60,13 +60,23 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
         }
         
         return nil
-        }
+    }
     
     /**
      Runs `body` closure for each element in the list.
      `rethrows` means that `forEach` will throw if the closure `throws`.
      */
     func forEach(_ body: (Socket.Address, String) throws -> Void) rethrows {}
+
+    func searchNick(nick: String) -> String? {
+        for client in clients {
+            if client.nick == nick {
+                return nick
+            }            
+        }
+
+        return nil
+    }
 }
 
 // Add additional extensions if you need to

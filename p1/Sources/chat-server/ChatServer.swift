@@ -49,7 +49,7 @@ class ChatServer {
                 if let address = clientAddress {
                     let (clientHostname, clientPort) = Socket.hostnameAndPort(from: address)!
 
-                    print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
+                    //print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
 
                     
                    let value = buffer.withUnsafeBytes {
@@ -60,22 +60,21 @@ class ChatServer {
 
                     switch value {
                     case .Init:
-                        print("INIT received from \(msg)")
                         var isReader: Bool { return msg == "reader" }
 
                         if isReader {
+                            print("INIT received from \(msg)")
                             try! readers.addClient(address: clientAddress!, nick: msg)
                         } else {
-                            for name in client_nicks {
-                                if name == msg {
-                                  print("INIT received from \(msg). IGNORED, nick already used")
-                                  found = true 
-                                }
-                            }
                             
-                            if !found {
+                            let usedClient = writers.searchNick(nick: msg)
+                            
+                            if usedClient == nil {
+                               print("INIT received from \(msg)")
                                try! writers.addClient(address: clientAddress!, nick: msg)
                                client_nicks.append(msg)
+                            } else {
+                               print("INIT received from \(msg). IGNORED, nick already used") 
                             }
                                     
                         }
@@ -84,7 +83,7 @@ class ChatServer {
                         break;
                     
                     case .Writer:
-                         var Wnick = writers.searchClient(address:clientAddress!)
+                         let Wnick = writers.searchClient(address:clientAddress!)
                          if Wnick != nil {
                            print("WRITER received from \(Wnick!): \(msg)")  
                          }
