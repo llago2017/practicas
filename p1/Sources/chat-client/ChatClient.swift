@@ -48,10 +48,10 @@ class ChatClient {
                 print("El usuario es un lector")
                 // Recibo
                 repeat {
-                    let (bytesRead, serverAddress) = try clientSocket.readDatagram(into: &buffer)
-                let str = buffer.withUnsafeBytes {
+                    let (_, _) = try clientSocket.readDatagram(into: &buffer)
+                    let str = buffer.withUnsafeBytes {
                         String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
-                }
+                    }
                     
                 print("Doble: \(str)")
                     
@@ -62,18 +62,23 @@ class ChatClient {
             } else {
                 print("El usuario es un escritor")
 
-                print("Escriba su mensaje: ")   
-                let message = readLine()!
+                repeat {
+                    print("Escriba su mensaje: ")   
+                    let message = readLine()!
 
-                // Envio el mensaje
-                withUnsafeBytes(of: ChatMessage.Writer) { buffer.append(contentsOf: $0) }
-                message.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
-                try clientSocket.write(from: buffer, to: serverAddress)
-            if message == ".quit" {
-                print("Hasta pronto")
-                exit(1)
+                    // Envio el mensaje
+                    withUnsafeBytes(of: ChatMessage.Writer) { buffer.append(contentsOf: $0) }
+                    message.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
+                    try clientSocket.write(from: buffer, to: serverAddress)
+
+                    if message == ".quit" {
+                        print("Hasta pronto")
+                        exit(1)     
+                    }
+                    
+                } while true
                 
-            }
+            
             
         }
 
