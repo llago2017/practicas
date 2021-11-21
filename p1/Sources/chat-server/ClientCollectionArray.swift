@@ -24,7 +24,10 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
     mutating func addClient(address: Socket.Address, nick: String) throws {
         // Creo el struct de cliente y lo añado al array con todos los clientes
         let entrada = Client(address: address, nick: nick)
+        
         clients.append(entrada)
+        
+        
     }
     
     /**
@@ -32,18 +35,32 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
      Throws `ClientCollectionError.noSuchClient` if the client does not exist.
      */
     mutating func removeClient(nick: String) throws {
-
+        var deleted = false;
         for client in clients {
             if client.nick == nick {
                 print("Borrar")
+                deleted = true;
             }            
+        }
+
+        if !deleted {
+            throw ClientCollectionError.noSuchClient
         }
     }
     
     /**
      Search by address. Returns the nickname, or `nil` if the address was not found in the list.
      */
-    func searchClient(address: Socket.Address) -> String? { return "test"}
+    func searchClient(address: Socket.Address) -> String? { 
+        
+        for client in clients {
+            if client.address == address {
+                return client.nick
+            }
+        }
+        
+        return nil
+        }
     
     /**
      Runs `body` closure for each element in the list.

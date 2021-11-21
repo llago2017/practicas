@@ -66,6 +66,14 @@ class ChatServer {
                         } else {
                             try! writers.addClient(address: clientAddress!, nick: msg)
                         }
+                        break;
+                    
+                    case .Writer:
+                         var Wnick = writers.searchClient(address:clientAddress!)
+                         if Wnick != nil {
+                           print("WRITER received from \(Wnick!): \(msg)")  
+                         }
+                         
                         
                         
                     default:

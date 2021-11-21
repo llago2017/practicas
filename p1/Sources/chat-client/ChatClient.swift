@@ -42,6 +42,7 @@ class ChatClient {
             withUnsafeBytes(of: tests) { buffer.append(contentsOf: $0) }
             nick.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
             try clientSocket.write(from: buffer , to: serverAddress)
+            buffer.removeAll()
 
             if isReader {
                 print("El usuario es un lector")
@@ -64,7 +65,10 @@ class ChatClient {
                 print("Escriba su mensaje: ")   
                 let message = readLine()!
 
-                try clientSocket.write(from: message, to: serverAddress)
+                // Envio el mensaje
+                withUnsafeBytes(of: ChatMessage.Writer) { buffer.append(contentsOf: $0) }
+                message.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
+                try clientSocket.write(from: buffer, to: serverAddress)
             if message == ".quit" {
                 print("Hasta pronto")
                 exit(1)
