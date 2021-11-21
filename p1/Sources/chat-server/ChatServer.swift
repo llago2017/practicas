@@ -41,15 +41,10 @@ class ChatServer {
             print("Listening on \(port)")
             
             var buffer = Data(capacity: 1000)
-            var client_nicks = [String]()
-            var found = false;
             repeat {
-                let (bytesRead, clientAddress) = try serverSocket.readDatagram(into: &buffer)
+                let (_, clientAddress) = try serverSocket.readDatagram(into: &buffer)
                 // Cuando se conecta uno me dice la dirección y los bytes que envía
-                if let address = clientAddress {
-                    let (clientHostname, clientPort) = Socket.hostnameAndPort(from: address)!
-
-                    //print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
+                if clientAddress != nil {
 
                     
                    let value = buffer.withUnsafeBytes {
@@ -73,18 +68,7 @@ class ChatServer {
                             } catch {
                                 print("INIT received from \(msg). IGNORED, nick already used")
                             }
-                            
-                            
-                            /*let usedClient = writers.searchNick(nick: msg)
-                            
-                            if usedClient == nil {
-                               print("INIT received from \(msg)")
-                               try! writers.addClient(address: clientAddress!, nick: msg)
-                               client_nicks.append(msg)
-                            } else {
-                               print("INIT received from \(msg). IGNORED, nick already used") 
-                            }*/
-                                    
+                              
                         }
                             
 
