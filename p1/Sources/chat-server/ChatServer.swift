@@ -68,6 +68,25 @@ class ChatServer {
                             do {
                                 try writers.addClient(address: clientAddress!, nick: msg)
                                 print("INIT received from \(msg)")
+
+                                func sendAll(address: Socket.Address, nick: String) {
+                                // Envio el mensaje
+                                
+                                var sendBuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                // DUDA FORMATO CORRECTO
+                                "server: \(msg) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                
+                                do {
+                                    try serverSocket.write(from: sendBuffer, to: address)
+                                    sendBuffer.removeAll()
+                                } catch {
+                                    print("Error")
+                                    
+                                }
+                            }
+
+                            readers.forEach(sendAll)
                             } catch {
                                 print("INIT received from \(msg). IGNORED, nick already used")
                             }
@@ -80,12 +99,13 @@ class ChatServer {
                     case .Writer:
                          let Wnick = writers.searchClient(address:clientAddress!)
                          if Wnick != nil {
-                           print("WRITER received from \(Wnick!): \(msg)")
-                           func sendAll(address: Socket.Address, nick: String) {
+                            print("WRITER received from \(Wnick!): \(msg)")
+                            func sendAll(address: Socket.Address, nick: String) {
                                 // Envio el mensaje
                                 
                                 var sendBuffer = Data(capacity: 1000)
                                 withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                // DUDA FORMATO CORRECTO
                                 "\(Wnick!): \(msg)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
                                 //print(toReader)
                                 
@@ -96,7 +116,7 @@ class ChatServer {
                                     print("Error")
                                     
                                 }
-                           }
+                            }
                            readers.forEach(sendAll)
                            
                          }
