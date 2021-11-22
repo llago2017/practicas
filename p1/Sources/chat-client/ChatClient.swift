@@ -49,11 +49,10 @@ class ChatClient {
                 // Recibo
                 repeat {
                     let (_, _) = try clientSocket.readDatagram(into: &buffer)
-                    let str = buffer.withUnsafeBytes {
-                        String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
-                    }
+                    let str = String(decoding: buffer, as: UTF8.self)
+                    buffer.removeAll()
                     
-                print("Doble: \(str)")
+                print(str)
                     
                 } while true
                 
@@ -70,6 +69,7 @@ class ChatClient {
                     withUnsafeBytes(of: ChatMessage.Writer) { buffer.append(contentsOf: $0) }
                     message.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
                     try clientSocket.write(from: buffer, to: serverAddress)
+                    buffer.removeAll()
 
                     if message == ".quit" {
                         print("Hasta pronto")

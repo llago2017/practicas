@@ -80,12 +80,17 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
      `rethrows` means that `forEach` will throw if the closure `throws`.
      */
     func forEach(_ body: (Socket.Address, String) throws -> Void) rethrows {
-        print("Se recibe algo")
-        print(clients)
+
+        // Ultimo usuario en la lista
+        var last_client = clients.count - 1
+        print(clients[last_client].nick)
         
-        for client in clients {
-           try! body(client.address, "test")
+        if clients.count > 0 {
+             for client in clients {
+                try! body(client.address, "test")
+            }
         }
+       
         
     }
 

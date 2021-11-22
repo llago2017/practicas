@@ -42,16 +42,19 @@ class ChatServer {
             
             var buffer = Data(capacity: 1000)
             repeat {
-                let (_, clientAddress) = try serverSocket.readDatagram(into: &buffer)
+                let (bytesRead, clientAddress) = try serverSocket.readDatagram(into: &buffer)
                 // Cuando se conecta uno me dice la dirección y los bytes que envía
-                if clientAddress != nil {
+                if let address = clientAddress {
+                    let (clientHostname, clientPort) = Socket.hostnameAndPort(from: address)!
 
-                    
+                
+                    //print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
+
                    let value = buffer.withUnsafeBytes {
                         $0.load(as: ChatMessage.self)
                     }
                     //print("String: \(value)")
-                    let msg = String(decoding: buffer, as: UTF8.self)
+                    var msg = String(decoding: buffer, as: UTF8.self)
 
                     switch value {
                     case .Init:
@@ -78,15 +81,17 @@ class ChatServer {
                          let Wnick = writers.searchClient(address:clientAddress!)
                          if Wnick != nil {
                            print("WRITER received from \(Wnick!): \(msg)")
-
                            func sendAll(address: Socket.Address, nick: String) {
                                 // Envio el mensaje
+                                
                                 var sendBuffer = Data(capacity: 1000)
                                 withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
-                                nick.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                nick.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                "\(Wnick!): \(msg)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                //print(toReader)
+                                
                                 do {
                                     try serverSocket.write(from: sendBuffer, to: address)
+                                    sendBuffer.removeAll()
                                 } catch {
                                     print("Error")
                                     
@@ -95,6 +100,7 @@ class ChatServer {
                            readers.forEach(sendAll)
                            
                          }
+                         break;
                          
                         
                         
@@ -103,16 +109,9 @@ class ChatServer {
                         
                         
                     }
-                    
-                    
-                    //print("Mensaje: \(msg)")
-                    
-                    
-                    //let message = String(decoding: buffer, as: UTF8.self)
-                    //print("Message: \(message)")
-                    //try serverSocket.write(from: message, to: clientAddress!)
                 }
-                buffer.removeAll()
+            
+            buffer.removeAll()
             } while true
         } catch let error {
             throw ChatServerError.networkError(socketError: error)
