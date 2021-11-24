@@ -28,12 +28,15 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
         if !uniqueNicks {
             clients.append(entrada)
         } else {
-            for client in clients {
-                if (client.nick == nick) {
-                    throw ClientCollectionError.repeatedClient
+            if clients.count >= 0 {
+                for client in clients {
+                    if (client.nick == nick) {
+                        throw ClientCollectionError.repeatedClient
+                    }       
                 } 
-                       
-            } 
+                
+            }
+            
             clients.append(entrada)
 
         }
@@ -83,11 +86,10 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
 
         // Ultimo usuario en la lista
         var last_client = clients.count - 1
-        print(clients[last_client].nick)
         
         if clients.count > 0 {
              for client in clients {
-                try! body(client.address, "test")
+                try! body(client.address, "test")                
             }
         }
        

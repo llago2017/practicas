@@ -42,51 +42,41 @@ class ChatServer {
             
             var buffer = Data(capacity: 1000)
             repeat {
-                let (bytesRead, clientAddress) = try serverSocket.readDatagram(into: &buffer)
+                let (_, clientAddress) = try serverSocket.readDatagram(into: &buffer)
                 // Cuando se conecta uno me dice la dirección y los bytes que envía
-                if let address = clientAddress {
-                    let (clientHostname, clientPort) = Socket.hostnameAndPort(from: address)!
+                if clientAddress != nil {
 
                 
                     //print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
+                   var readBuffer = buffer
+                    
 
-                   let value = buffer.withUnsafeBytes {
-                        $0.load(as: ChatMessage.self)
+                    var value = ChatMessage.Init
+                    let count = MemoryLayout<ChatMessage>.size
+                    var _ = withUnsafeMutableBytes(of: &value) {
+                        readBuffer.copyBytes(to: $0, from: 0..<count)
                     }
-                    //print("String: \(value)")
-                    var msg = String(decoding: buffer, as: UTF8.self)
+                    
+
+                    readBuffer = readBuffer.advanced(by:count)
+
+                    let msg = buffer.advanced(by: count).withUnsafeBytes {
+                            String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                    }
 
                     switch value {
                     case .Init:
-                        var isReader: Bool { return msg == "\0reader\0" } // DUDA
+                        var isReader: Bool { return msg == "reader" }
                         
                         if isReader {
                             print("INIT received from \(msg)")
-                            try self.readers.addClient(address: clientAddress!, nick: msg)
+                            try readers.addClient(address: clientAddress!, nick: msg)
+                            
                         } else {
 
                             do {
                                 try writers.addClient(address: clientAddress!, nick: msg)
                                 print("INIT received from \(msg)")
-
-                                func sendAll(address: Socket.Address, nick: String) {
-                                // Envio el mensaje
-                                
-                                var sendBuffer = Data(capacity: 1000)
-                                withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
-                                // DUDA FORMATO CORRECTO
-                                "server: \(msg) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                
-                                do {
-                                    try serverSocket.write(from: sendBuffer, to: address)
-                                    sendBuffer.removeAll()
-                                } catch {
-                                    print("Error")
-                                    
-                                }
-                            }
-
-                            readers.forEach(sendAll)
                             } catch {
                                 print("INIT received from \(msg). IGNORED, nick already used")
                             }
@@ -100,6 +90,7 @@ class ChatServer {
                          let Wnick = writers.searchClient(address:clientAddress!)
                          if Wnick != nil {
                             print("WRITER received from \(Wnick!): \(msg)")
+
                             func sendAll(address: Socket.Address, nick: String) {
                                 // Envio el mensaje
                                 
