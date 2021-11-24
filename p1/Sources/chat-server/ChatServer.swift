@@ -110,6 +110,9 @@ class ChatServer {
                             }
                            readers.forEach(sendAll)
                            
+                         } else {
+                             print("WRITER received from unknown client. IGNORED")
+                             
                          }
                          break;
                          
