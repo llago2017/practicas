@@ -49,10 +49,41 @@ class ChatClient {
                 // Recibo
                 repeat {
                     let (_, _) = try clientSocket.readDatagram(into: &buffer)
-                    let str = String(decoding: buffer, as: UTF8.self)
+                    var readBuffer = buffer
+                    
+
+                    var value = ChatMessage.Init
+                    var count = MemoryLayout<ChatMessage>.size
+                    var _ = withUnsafeMutableBytes(of: &value) {
+                        readBuffer.copyBytes(to: $0, from: 0..<count)
+                    }
+                    
+
+                    //readBuffer = readBuffer.advanced(by:count)
+
+                    let client_nick = buffer.advanced(by: count).withUnsafeBytes {
+                            String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                    }
+
+                    //print("Nick: \(client_nick)")
+                    count += client_nick.count
+
+                    //readBuffer = readBuffer.advanced(by:count + client_nick)
+                    //print(count)
+                    
+
+                    let text = buffer.advanced(by: count + 1).withUnsafeBytes {
+                            String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                    }
+
+                   // print("TEXTO: \(text)")
+                    
+                    
+                    
+                    //let str = String(decoding: buffer, as: UTF8.self)
                     buffer.removeAll()
                     
-                print(str)
+                    print(client_nick + text)
                     
                 } while true
                 
