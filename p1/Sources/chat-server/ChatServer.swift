@@ -84,7 +84,8 @@ class ChatServer {
                                     var sendBuffer = Data(capacity: 1000)
                                     withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
                                     // DUDA FORMATO CORRECTO
-                                    "server: \(msg) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                    "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                    ": \(msg) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
                                     //print(toReader)
                                     
                                     do {
@@ -116,9 +117,9 @@ class ChatServer {
                                 var sendBuffer = Data(capacity: 1000)
                                 withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
                                 // DUDA FORMATO CORRECTO
-                                "\(Wnick!): \(msg)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                //print(toReader)
-                                
+                                Wnick!.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                ": \(msg)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                
                                 do {
                                     try serverSocket.write(from: sendBuffer, to: address)
                                     sendBuffer.removeAll()
