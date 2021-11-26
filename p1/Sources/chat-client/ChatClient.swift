@@ -45,11 +45,11 @@ class ChatClient {
             buffer.removeAll()
 
             if isReader {
-                print("El usuario es un lector")
+                //print("El usuario es un lector")
                 // Recibo
                 repeat {
                     let (_, _) = try clientSocket.readDatagram(into: &buffer)
-                    var readBuffer = buffer
+                    let readBuffer = buffer
                     
 
                     var value = ChatMessage.Init
@@ -90,11 +90,11 @@ class ChatClient {
                  
             
             } else {
-                print("El usuario es un escritor")
+                //print("El usuario es un escritor")
 
                 repeat {
-                    print("Escriba su mensaje: ")   
                     let message = readLine()!
+                    print("Message: ", message)   
 
                     // Envio el mensaje
                     withUnsafeBytes(of: ChatMessage.Writer) { buffer.append(contentsOf: $0) }

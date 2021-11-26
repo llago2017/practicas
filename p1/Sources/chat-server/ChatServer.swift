@@ -53,7 +53,7 @@ class ChatServer {
 
                     var value = ChatMessage.Init
                     let count = MemoryLayout<ChatMessage>.size
-                    var _ = withUnsafeMutableBytes(of: &value) {
+                    var copyBytes = withUnsafeMutableBytes(of: &value) {
                         readBuffer.copyBytes(to: $0, from: 0..<count)
                     }
                     
