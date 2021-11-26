@@ -1,0 +1,19 @@
+//Ejercicio 1 --> Arreglo para que no pete con indices <0
+print("Ejercicio 1")
+
+extension LinkedList {
+    func value(at index: Int) -> String? {
+        guard index >= 0 else { return "valor no válido"}
+        var i = 0
+        var node = head
+        while node != nil && i < index {
+            node = node!.next
+            i = i+1
+        }
+        return node?.value
+    }
+}
+var lista = LinkedList()
+lista.append("c")
+lista.push("b")
+print(lista.value(at: -8)!)

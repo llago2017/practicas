@@ -1,0 +1,63 @@
+// Ejercicio 2
+
+print("Ejercicio 2 Introduce una propiedad count que indique cuántos elementos están almacenados en la lista. Puedes hacerlo de dos maneras: Contándolos cada vez (fácil, pero poco eficiente).
+Manteniendo una variable con la suma total. Debes actualizar para ello el código de todas las funciones que insertan nodos.")
+
+struct LinkedList {
+    private(set) var head: Node?
+    private(set) var tail: Node?
+    var suma: Int = 0
+    
+    init() {}
+}
+
+extension LinkedList {    
+    mutating func append(_ value: String) {
+        // Create node
+        let newNode = Node(value: value)
+        suma += 1
+        
+        // The tail, if it exists, must point to the new node
+        if let tail = tail {
+            tail.next = newNode
+        }
+        
+        // Update tail and head
+        tail = newNode
+        if head == nil { head = newNode }
+    }
+}
+
+extension LinkedList {
+    mutating func push(_ value: String) {
+        head = Node(value: value, next: head)
+        if tail == nil { tail = head }
+        suma += 1
+    }
+}
+
+extension LinkedList {
+    func value(at index: Int) -> String? {
+        guard index >= 0 else { return "valor no válido"}
+        var i = 0
+        var node = head
+        while node != nil && i < index {
+            node = node!.next
+            i = i+1
+        }
+        return node?.value
+    }
+}
+
+extension LinkedList {
+    var count: Int {
+        return suma
+    }
+}
+
+var lista = LinkedList()
+lista.append("c")
+lista.push("b")
+lista.push("a")
+lista.append("z")
+print(lista.count)
