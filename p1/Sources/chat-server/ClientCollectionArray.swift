@@ -50,12 +50,19 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
      */
     mutating func removeClient(nick: String) throws {
         var deleted = false;
-        for client in clients {
+        for n in 0...clients.count-1 {
+            if clients[n].nick == nick {
+                clients.remove(at: n);
+                deleted = true
+            }
+
+        }
+        /*for client in clients {
             if client.nick == nick {
                 print("Borrar")
                 deleted = true;
             }            
-        }
+        }*/
 
         if !deleted {
             throw ClientCollectionError.noSuchClient
@@ -85,7 +92,7 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
     func forEach(_ body: (Socket.Address, String) throws -> Void) rethrows {
 
         // Ultimo usuario en la lista
-        var last_client = clients.count - 1
+        //let last_client = clients.count - 1
         
         if clients.count > 0 {
              for client in clients {
