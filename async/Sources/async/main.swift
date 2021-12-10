@@ -1,5 +1,5 @@
 import Dispatch
-
+import Foundation
 func run(_ label: String, times: Int = 5) {
     for n in 1...times {
         print(label, n)
@@ -29,3 +29,6 @@ queue.async {
 }
 
 run("TP")
+usleep(10)
+
+// Calidad de servicio let queue = DispatchQueue.global(qos: .userInteractive, background, utility...)
