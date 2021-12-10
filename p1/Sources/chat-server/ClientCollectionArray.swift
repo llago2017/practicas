@@ -96,7 +96,7 @@ extension ClientCollectionArray: ClientCollection { // Implementación para lect
         
         if clients.count > 0 {
              for client in clients {
-                try! body(client.address, "test")                
+                try! body(client.address, client.nick)                
             }
         }
        
