@@ -56,7 +56,7 @@ do {
         
 
     repeat {
-        print("Enter message: ", terminator:"")
+        //print("Enter message: ", terminator:"")
         if let message = readLine(), message != ".quit" {
             try clientSocket.write(from: message, to: serverAddress)
             /*let _ = try clientSocket.readDatagram(into: &buffer)
