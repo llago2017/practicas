@@ -8,7 +8,10 @@ do {
     try serverSocket.listen(on: port)
     print("Listening on \(port)")
     var buffer = Data(capacity: 1000)
-    func servidor() {
+    let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
+
+    queue.async {
+        repeat{
             do {
                 let (bytesRead, clientAddress) = try serverSocket.readDatagram(into: &buffer)
                 if let address = clientAddress {
@@ -26,32 +29,39 @@ do {
             } catch let error {
                 print("Connection error: \(error)")
             }
+        } while true
             
     }
 
-    func escribir(){
-        if let message = readLine(), message != "q" {
-            print("Enter 'q' (+ Enter) to quit.")
-            
-        } else {
+    /*func escribir(){
+        let message = readLine()
+        switch message {
+        case "q":
             exit(1)
+            break;
+        case "Q":
+            exit(1)
+            break;
+            
+        default:            
+            print("Enter 'q' (+ Enter) to quit.")
         }
-    }
+    }*/
 
-    let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
-
-        // Mando trabajos a la cola, que son bloques de código
-        queue.async {
-            servidor()
+    repeat {   
+        let message = readLine()
+        switch message {
+        case "q":
+            exit(1)
+            break;
+        case "Q":
+            exit(1)
+            break;
+            
+        default:            
+            print("Enter 'q' (+ Enter) to quit.")
         }
-
-        queue.async {
-            escribir()
-        }
-
-    repeat {
         
-  
     } while true
     
 
