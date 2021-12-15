@@ -57,47 +57,74 @@ class ChatServer {
             print("Listening on \(port)")
                     
             var buffer = Data(capacity: 1000)
-            repeat {
-                let (_, clientAddress) = try serverSocket.readDatagram(into: &buffer)
-                // Cuando se conecta uno me dice la dirección y los bytes que envía
-                if clientAddress != nil {
-                     
-                    //print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
-                    var readBuffer = buffer
-                            
-                    var value = ChatMessage.Init
-                    let count = MemoryLayout<ChatMessage>.size
-                    var copyBytes = withUnsafeMutableBytes(of: &value) {
-                        readBuffer.copyBytes(to: $0, from: 0..<count)
-                    }
-                    
+            let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
+            var value = ChatMessage.Init
 
+            queue.async {
+                do {
+                    repeat {
+                    let (_, clientAddress) = try self.serverSocket.readDatagram(into: &buffer)
+                    // Cuando se conecta uno me dice la dirección y los bytes que envía
+                    if clientAddress != nil {
+                        
+                        //print("Received length \(bytesRead) from \(clientHostname):\(clientPort)")
+                        var readBuffer = buffer
+                                
+                        
+                        let count = MemoryLayout<ChatMessage>.size
+                        var copyBytes = withUnsafeMutableBytes(of: &value) {
+                            readBuffer.copyBytes(to: $0, from: 0..<count)
+                        }
+                    }
 
                     switch value {
-                    case .Init:
+                    case ChatMessage.Init:
                         print("Mensaje init")
-                        var sendBuffer = Data(capacity: 1000)
-                        
-                        withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
-                        withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
-                                                                
-                        do {
-                            try serverSocket.write(from: sendBuffer, to: clientAddress!)
-                            sendBuffer.removeAll()
-                        } catch {
-                            print("Error")                    
+                            var sendBuffer = Data(capacity: 1000)
+                            
+                            withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                            withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
+                                                                    
+                            do {
+                                try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+                                sendBuffer.removeAll()
+                            } catch {
+                                print("Error")                    
+                            }
+                            break;
+                        default:
+                            print("Cualquier cosa")
+                            break;
+                            
+                            
                         }
-                        break;
-                    default:
-                        print("Cualquier cosa")
-                        break;
-                        
-                        
-                    }
+                } while true
+                } catch  {
+                    print("Error leyendo mensaje")
                     
-                    buffer.removeAll()
                 }
-           } while true
+                
+            }
+                      
+
+            repeat {   
+                let message = readLine()
+                switch message {
+                case "q":
+                    exit(1)
+                    break;
+                case "Q":
+                    exit(1)
+                    break;
+                    
+                default:            
+                    print("Enter 'q' (+ Enter) to quit.")
+                }
+   
+            } while true
+            
+                
+         
         } catch let error {
             throw ChatServerError.networkError(socketError: error)
         }
