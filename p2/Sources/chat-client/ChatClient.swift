@@ -62,6 +62,8 @@ class ChatClient {
                         readBuffer.copyBytes(to: $0, from: 0..<count)
                     }
 
+                    print(value)
+                    
                     if value == ChatMessage.Welcome {
                         print("Mensaje de bienvenida")
                         

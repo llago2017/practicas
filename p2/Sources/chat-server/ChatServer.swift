@@ -70,10 +70,23 @@ class ChatServer {
                     var copyBytes = withUnsafeMutableBytes(of: &value) {
                         readBuffer.copyBytes(to: $0, from: 0..<count)
                     }
-                            
+                    
+
+
                     switch value {
                     case .Init:
                         print("Mensaje init")
+                        var sendBuffer = Data(capacity: 1000)
+                        
+                        withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                        withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
+                                                                
+                        do {
+                            try serverSocket.write(from: sendBuffer, to: clientAddress!)
+                            sendBuffer.removeAll()
+                        } catch {
+                            print("Error")                    
+                        }
                         break;
                     default:
                         print("Cualquier cosa")
