@@ -51,7 +51,8 @@ class ChatClient {
                     let (bytesRead, _) = try clientSocket.readDatagram(into: &buffer)
                     
                     if bytesRead == 0 && errno == EAGAIN { 
-                        print("Error")
+                        print("Server unreachable")
+                        exit(1)
                     
                     }
                     var readBuffer = buffer
