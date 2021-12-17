@@ -59,6 +59,8 @@ class ChatServer {
             var buffer = Data(capacity: 1000)
             let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
             var value = ChatMessage.Init
+            var nickname: String = ""
+            var activeClients = ArrayQueue<Client>(maxCapacity: 3)
 
             queue.async {
                 do {
@@ -75,6 +77,12 @@ class ChatServer {
                         var copyBytes = withUnsafeMutableBytes(of: &value) {
                             readBuffer.copyBytes(to: $0, from: 0..<count)
                         }
+
+                        readBuffer = readBuffer.advanced(by:count)
+
+                        nickname = buffer.advanced(by: count).withUnsafeBytes {
+                                String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                        }
                     }
 
                     switch value {
@@ -88,9 +96,10 @@ class ChatServer {
                             do {
                                 let fechaDeAhora = Date()
 
-                                var newClient = Client(nickname: "test", addres: clientAddress!, timestamp: fechaDeAhora )
+                                var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
                                 
-                                var activeClients = ArrayQueue<Client>()
+                                
+                                //var ayuda = activeClients.contains(where: newClient)
                                 try activeClients.enqueue(newClient)
 
                                 try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
