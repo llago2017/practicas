@@ -6,7 +6,9 @@ public struct ArrayQueue<T>: Queue {
     public var count: Int = 0
     public var maxCapacity: Int = 3
 
-    public init() {}
+    public init(maxCapacity: Int) {
+        self.maxCapacity = maxCapacity
+    }
     
     public mutating func enqueue(_ value: T) throws{
         storage.append(value)
