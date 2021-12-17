@@ -39,11 +39,11 @@ class ChatClient {
 
             // Buffer para mensaje init
             let tests = ChatMessage.Init
+            var sendbuffer = Data(capacity: 1000)
             var buffer = Data(capacity: 1000)
-            withUnsafeBytes(of: tests) { buffer.append(contentsOf: $0) }
-            nick.utf8CString.withUnsafeBytes { buffer.append(contentsOf: $0) }
-            try clientSocket.write(from: buffer , to: serverAddress)
-            buffer.removeAll()
+            withUnsafeBytes(of: tests) { sendbuffer.append(contentsOf: $0) }
+            nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+            try clientSocket.write(from: sendbuffer , to: serverAddress)
 
             do {
                     try clientSocket.setReadTimeout(value: 10 * 1000)
@@ -58,30 +58,31 @@ class ChatClient {
                     var readBuffer = buffer
                     
                     var value = ChatMessage.Init
-                    let count = MemoryLayout<ChatMessage>.size
+                    var offset = MemoryLayout<ChatMessage>.size
                     var copyBytes = withUnsafeMutableBytes(of: &value) {
-                        readBuffer.copyBytes(to: $0, from: 0..<count)
+                        buffer.copyBytes(to: $0, from: 0..<offset)
                     }
+
+                    //offset += 1 
 
                     print(value)
                     
                     if value == ChatMessage.Welcome {
                         print("Mensaje de bienvenida")
-                        readBuffer = readBuffer.advanced(by:count)
+                        //readBuffer = readBuffer.advanced(by:count)
 
                         var accepted: Bool = true
-                        let boolSize = MemoryLayout<Bool>.size
-                        var copyBytes = withUnsafeMutableBytes(of: &accepted) {
-                            readBuffer.copyBytes(to: $0, from: count..<boolSize)
+                        let count = MemoryLayout<Bool>.size
+                        var bytesCopied = withUnsafeMutableBytes(of: &accepted) {
+                            buffer.copyBytes(to: $0, from: offset..<offset+count)
                         }
 
                         print("Estado: ")
                         print(accepted)
                         
                         
-                        
+                        readBuffer.removeAll()
                     }
-                    buffer.removeAll()
                     
                 } catch {
                         // Ignored

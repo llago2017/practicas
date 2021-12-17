@@ -59,7 +59,6 @@ class ChatServer {
             var buffer = Data(capacity: 1000)
             let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
             var value = ChatMessage.Init
-            var nickname: String = ""
             var activeClients = ArrayQueue<Client>(maxCapacity: 3)
 
             queue.async {
@@ -80,30 +79,46 @@ class ChatServer {
 
                         readBuffer = readBuffer.advanced(by:count)
 
-                        nickname = buffer.advanced(by: count).withUnsafeBytes {
+                        var nickname = buffer.advanced(by: count).withUnsafeBytes {
                                 String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                         }
-                    }
+                        buffer.removeAll()
+                        readBuffer.removeAll()
+                    
 
                     switch value {
                     case ChatMessage.Init:
                         print("Mensaje init")
                             var sendBuffer = Data(capacity: 1000)
                             
-                            withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
-                            withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
                                                                     
                             do {
                                 let fechaDeAhora = Date()
 
                                 var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
                                 
+                                print(nickname)
                                 
-                                //var ayuda = activeClients.contains(where: newClient)
-                                try activeClients.enqueue(newClient)
-
-                                try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
-                                sendBuffer.removeAll()
+                                var contains = activeClients.contains{ $0.nickname == newClient.nickname }
+                                //var ayuda = activeClients.contains(where: {$0.nickname == newClient.nickname})
+                                print(contains)
+                                
+                                if contains {
+                                    withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                                    withUnsafeBytes(of: false) { sendBuffer.append(contentsOf: $0) }
+                                    try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+                                    sendBuffer.removeAll()
+                                    
+                                } else {
+                                    withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                                    withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
+                                
+                                    try activeClients.enqueue(newClient)
+                                    try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+                                    sendBuffer.removeAll()
+                                }
+                                
+                                
                             } catch {
                                 print("Error")                    
                             }
@@ -114,6 +129,7 @@ class ChatServer {
                             
                             
                         }
+                    }
                 } while true
                 } catch  {
                     print("Error leyendo mensaje")
