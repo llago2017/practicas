@@ -1,26 +1,28 @@
 import Socket
 
-struct ArrayQueue<T>: Queue {
+public struct ArrayQueue<T>: Queue {
     private var storage = [T]()
 
-    var count: Int = 0
-    var maxCapacity: Int
+    public var count: Int = 0
+    public var maxCapacity: Int = 3
+
+    public init() {}
     
-    mutating func enqueue(_ value: T) throws{
+    public mutating func enqueue(_ value: T) throws{
         storage.append(value)
     }
 
-    mutating func dequeue() -> T? {
+    public mutating func dequeue() -> T? {
         guard storage.count == 0 else { return storage.remove(at: 0)}
             
         return nil
     }
     
-    func forEach(_ body: (T) throws -> Void) rethrows{}
+    public func forEach(_ body: (T) throws -> Void) rethrows{}
     
-    func contains(where predicate: (T) -> Bool) -> Bool{return true}
-    func findFirst(where predicate: (T) -> Bool) -> T?{ return nil}
+    public func contains(where predicate: (T) -> Bool) -> Bool{return true}
+    public func findFirst(where predicate: (T) -> Bool) -> T?{ return nil}
     
-    mutating func remove(where predicate: (T) -> Bool){return}
+    public mutating func remove(where predicate: (T) -> Bool){return}
 
 }

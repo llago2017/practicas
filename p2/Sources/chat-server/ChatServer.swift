@@ -27,12 +27,12 @@ struct Client {
         var nickname: String
         var addres: Socket.Address
         var timestamp: Date
-    }
+}
 
-    struct InactiveClient {
-        var nickname: String
-        var timestamp: Date
-    }
+struct InactiveClient {
+    var nickname: String
+    var timestamp: Date
+}
 
 class ChatServer {
     let port: Int
@@ -87,14 +87,11 @@ class ChatServer {
                                                                     
                             do {
                                 let fechaDeAhora = Date()
-                                print(fechaDeAhora) 
-                                let df = DateFormatter()
-                                df.dateFormat = "yy-MMM-dd HH:mm"
-                                print(df.string(from: fechaDeAhora)) 
 
                                 var newClient = Client(nickname: "test", addres: clientAddress!, timestamp: fechaDeAhora )
-                                var q = ArrayQueue<String>(maxCapacity: 1)
-                                //q.enqueue("test")
+                                
+                                var activeClients = ArrayQueue<Client>()
+                                try activeClients.enqueue(newClient)
 
                                 try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
                                 sendBuffer.removeAll()
