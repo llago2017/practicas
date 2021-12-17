@@ -67,6 +67,18 @@ class ChatClient {
                     
                     if value == ChatMessage.Welcome {
                         print("Mensaje de bienvenida")
+                        readBuffer = readBuffer.advanced(by:count)
+
+                        var accepted: Bool = true
+                        let boolSize = MemoryLayout<Bool>.size
+                        var copyBytes = withUnsafeMutableBytes(of: &accepted) {
+                            readBuffer.copyBytes(to: $0, from: count..<boolSize)
+                        }
+
+                        print("Estado: ")
+                        print(accepted)
+                        
+                        
                         
                     }
                     buffer.removeAll()

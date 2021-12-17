@@ -86,6 +86,16 @@ class ChatServer {
                             withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
                                                                     
                             do {
+                                let fechaDeAhora = Date()
+                                print(fechaDeAhora) 
+                                let df = DateFormatter()
+                                df.dateFormat = "yy-MMM-dd HH:mm"
+                                print(df.string(from: fechaDeAhora)) 
+
+                                var newClient = Client(nickname: "test", addres: clientAddress!, timestamp: fechaDeAhora )
+                                var q = ArrayQueue<String>(maxCapacity: 1)
+                                //q.enqueue("test")
+
                                 try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
                                 sendBuffer.removeAll()
                             } catch {
