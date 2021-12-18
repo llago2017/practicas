@@ -86,7 +86,7 @@ class ChatServer {
 
                     switch value {
                         case ChatMessage.Init:
-                            print("Mensaje init")
+                            //print("Mensaje init")
 
                             buffer.removeAll()
                             readBuffer.removeAll()
@@ -98,19 +98,23 @@ class ChatServer {
 
                                 var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
                                 
-                                print(nickname)
+                                //print(nickname)
                                 
                                 var contains = activeClients.contains{ $0.nickname == newClient.nickname }
                                 //var ayuda = activeClients.contains(where: {$0.nickname == newClient.nickname})
-                                print(contains)
+                                //print(contains)
                                 
-                                if contains {                                    
+                                if contains {  
+                                    print("INIT received form \(nickname): IGNORED. Nick already used")
+                                                                      
                                     withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
                                     withUnsafeBytes(of: false) { sendBuffer.append(contentsOf: $0) }
                                     try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
                                     sendBuffer.removeAll()
                                     
                                 } else {
+                                    print("INIT received form \(nickname): ACCEPTED")
+                                    
                                     withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
                                     withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
                                 
