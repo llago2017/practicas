@@ -104,7 +104,7 @@ class ChatServer {
                                 //var ayuda = activeClients.contains(where: {$0.nickname == newClient.nickname})
                                 print(contains)
                                 
-                                if contains {
+                                if contains {                                    
                                     withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
                                     withUnsafeBytes(of: false) { sendBuffer.append(contentsOf: $0) }
                                     try self.serverSocket.write(from: sendBuffer, to: clientAddress!)

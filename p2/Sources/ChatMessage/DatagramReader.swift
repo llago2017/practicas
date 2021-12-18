@@ -28,7 +28,7 @@ public class DatagramReader {
     /** Creates a DatagramReader and read datagrams forever in a loop. */
     public init(socket: Socket, capacity: Int, handler: @escaping (Data, Int, Socket.Address?) -> Void) {
         var buffer = Data(capacity: capacity)
-        var accepted: Bool = false 
+        var accepted: Bool? = nil
         let queue = DispatchQueue.global(qos: .userInteractive)
         queue.async {
             repeat {
@@ -61,7 +61,7 @@ public class DatagramReader {
                     
                     
                 } catch DatagramReaderError.timeout {
-                    if !accepted {
+                    if accepted == nil {
                         print("Server Unreachable")
                         exit(1)
                     }

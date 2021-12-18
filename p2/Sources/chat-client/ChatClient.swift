@@ -28,9 +28,7 @@ class ChatClient {
         
     func run() throws {
         // Your code here
-         // Your code here
-        print("Iniciando cliente")
-        var accepted: Bool = true
+        var accepted: Bool? = nil
 
         do {
             guard let serverAddress = Socket.createAddress(for: host, on: Int32(port)) else {
@@ -62,24 +60,35 @@ class ChatClient {
                     var copyBytes = withUnsafeMutableBytes(of: &value) {
                         buffer.copyBytes(to: $0, from: 0..<offset)
                     }
+
                     if value == ChatMessage.Welcome {
                         
                         let count = MemoryLayout<Bool>.size
                         var bytesCopied = withUnsafeMutableBytes(of: &accepted) {
-                            buffer.copyBytes(to: $0, from: offset..<offset+count)
-                        }                        
+                            readBuffer.copyBytes(to: $0, from: offset..<offset+count)
+                        }
+
+                        if accepted != nil && accepted! {
+                            print("Mini-Chat v2.0: Welcome \(self.nick)") 
+                        }
+
+                        if accepted != nil && !accepted! {
+                            print("Mini-Chat v2.0: IGNORED new user \(self.nick), nick already used")
+                            exit(1)
+                            
+                        }                      
                         
                         readBuffer.removeAll()
                     }
 
                     if value == ChatMessage.Server {
-                         var nickname = buffer.advanced(by: offset).withUnsafeBytes {
-                                String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                        var nickname = readBuffer.advanced(by: offset).withUnsafeBytes {
+                            String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                         }    
 
                         offset += nickname.count
 
-                        let text = buffer.advanced(by: offset + 1).withUnsafeBytes {
+                        let text = readBuffer.advanced(by: offset + 1).withUnsafeBytes {
                             String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                         }                
                         
@@ -98,7 +107,9 @@ class ChatClient {
             let queue = DispatchQueue.global() 
 
             repeat {
-                if accepted {
+                if accepted != nil {
+                    if accepted! {
+                    
                     if let message = readLine(), message != ".quit" {
                         queue.async {
                             do {
@@ -116,6 +127,9 @@ class ChatClient {
                         
                     }
                 }
+                    
+                }
+                
             } while true
                     
 
