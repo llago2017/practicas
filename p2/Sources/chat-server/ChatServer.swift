@@ -135,6 +135,27 @@ class ChatServer {
                                 String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                             }
                             buffer.removeAll()
+
+                            // Compruebo si esta en la lista
+                            
+                            var contains = activeClients.contains{ $0.nickname == nickname }
+
+                            if contains {
+                                // Lo elimino temporalmente
+                                activeClients.remove{ $0.nickname == nickname }
+
+                                // Lo vuelvo a meter
+                                let fechaDeAhora = Date()
+                                var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+                                do {
+                                    try activeClients.enqueue(newClient)
+                                } catch  {
+                                    print("Error al volver a meterlo")
+                                    
+                                }
+
+                            }
+
                             print("WRITER received from \(nickname): \(text)")
 
                             func sendAll(client: Client) {

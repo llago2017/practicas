@@ -11,7 +11,7 @@ public struct ArrayQueue<T>: Queue {
     }
     
     public mutating func enqueue(_ value: T) throws{
-        if count < 3 {
+        if count < maxCapacity {
             storage.append(value)
             count += 1
             
@@ -29,10 +29,10 @@ public struct ArrayQueue<T>: Queue {
     }
     
     public func forEach(_ body: (T) throws -> Void) rethrows{
-        if storage.count > 0 {
-            for client in storage{
-                try! body(client)                
-            }
+        // No se envia al que manda el writer, que al actualizarse es el ultimo
+        var lastUser = storage.count - 1
+        for i in 0...lastUser-1 {
+            try! body(storage[i])
         }
     }
     
@@ -54,6 +54,16 @@ public struct ArrayQueue<T>: Queue {
          return nil
          }
     
-    public mutating func remove(where predicate: (T) -> Bool){return}
+    public mutating func remove(where predicate: (T) -> Bool){
+        var result: Int?
+        result = self.storage.index(where: predicate)
+
+        //print("Elimino en el index \(result)")
+        self.storage.remove(at: result!)
+        
+        count -= 1
+             
+        
+    }
 
 }
