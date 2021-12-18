@@ -62,24 +62,28 @@ class ChatClient {
                     var copyBytes = withUnsafeMutableBytes(of: &value) {
                         buffer.copyBytes(to: $0, from: 0..<offset)
                     }
-
-                    //offset += 1 
-
-                    print(value)
-                    
                     if value == ChatMessage.Welcome {
-                        print("Mensaje de bienvenida")
-                        //readBuffer = readBuffer.advanced(by:count)
-
                         
                         let count = MemoryLayout<Bool>.size
                         var bytesCopied = withUnsafeMutableBytes(of: &accepted) {
                             buffer.copyBytes(to: $0, from: offset..<offset+count)
-                        }
-
-                       /* print("Estado: ")
-                        print(accepted)*/
+                        }                        
                         
+                        readBuffer.removeAll()
+                    }
+
+                    if value == ChatMessage.Server {
+                         var nickname = buffer.advanced(by: offset).withUnsafeBytes {
+                                String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                        }    
+
+                        offset += nickname.count
+
+                        let text = buffer.advanced(by: offset + 1).withUnsafeBytes {
+                            String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                        }                
+                        
+                        print("\(nickname): \(text)")
                         
                         readBuffer.removeAll()
                     }

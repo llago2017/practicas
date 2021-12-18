@@ -28,7 +28,13 @@ public struct ArrayQueue<T>: Queue {
         return nil
     }
     
-    public func forEach(_ body: (T) throws -> Void) rethrows{}
+    public func forEach(_ body: (T) throws -> Void) rethrows{
+        if storage.count > 0 {
+            for client in storage{
+                try! body(client)                
+            }
+        }
+    }
     
     public func contains(where predicate: (T) -> Bool) -> Bool{
        return self.storage.contains(where: predicate)

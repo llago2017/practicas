@@ -57,7 +57,7 @@ public class DatagramReader {
                         
                         readBuffer.removeAll()
                     }
-                    print(accepted)
+                   // print(accepted)
                     
                     
                 } catch DatagramReaderError.timeout {

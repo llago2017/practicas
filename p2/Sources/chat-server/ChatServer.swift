@@ -130,7 +130,27 @@ class ChatServer {
                             let text = buffer.advanced(by: count + 1).withUnsafeBytes {
                                 String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                             }
-                            print("\(nickname): \(text)")
+                            buffer.removeAll()
+                            print("WRITER received from \(nickname): \(text)")
+
+                            func sendAll(client: Client) {
+                                // Envio el mensaje
+                                
+                                var sendBuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                
+                                nickname.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                ": \(text)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                
+                                do {
+                                    try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                    sendBuffer.removeAll()
+                                } catch {
+                                    print("Error")
+                                    
+                                }
+                            }
+                            activeClients.forEach(sendAll)
                             break;
 
                         default:
