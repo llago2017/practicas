@@ -28,16 +28,44 @@ public class DatagramReader {
     /** Creates a DatagramReader and read datagrams forever in a loop. */
     public init(socket: Socket, capacity: Int, handler: @escaping (Data, Int, Socket.Address?) -> Void) {
         var buffer = Data(capacity: capacity)
-        
+        var accepted: Bool = false 
         let queue = DispatchQueue.global(qos: .userInteractive)
         queue.async {
             repeat {
+                
                 buffer.removeAll()
                 do {
                     let (bytesRead, address) = try self.readDatagram(from: socket, into: &buffer)
-                    handler(buffer, bytesRead, address)        // TODO: main queue, buffer copy
+                    handler(buffer, bytesRead, address)  
+                         // TODO: main queue, buffer copy
+                    var readBuffer = buffer
+                    
+                    var value = ChatMessage.Init
+                    var offset = MemoryLayout<ChatMessage>.size
+                    var copyBytes = withUnsafeMutableBytes(of: &value) {
+                        buffer.copyBytes(to: $0, from: 0..<offset)
+                    }
+                    
+                    if value == ChatMessage.Welcome {
+
+                        
+                        let count = MemoryLayout<Bool>.size
+                        var bytesCopied = withUnsafeMutableBytes(of: &accepted) {
+                            buffer.copyBytes(to: $0, from: offset..<offset+count)
+                        }
+                        
+                        
+                        readBuffer.removeAll()
+                    }
+                    print(accepted)
+                    
+                    
                 } catch DatagramReaderError.timeout {
-                    // Ignored
+                    if !accepted {
+                        print("Server Unreachable")
+                        exit(1)
+                    }
+                    
                 } catch {
                     /// TODO: error handling
                     fatalError("Communications error: \(error)")

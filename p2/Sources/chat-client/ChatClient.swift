@@ -46,14 +46,16 @@ class ChatClient {
             withUnsafeBytes(of: tests) { sendbuffer.append(contentsOf: $0) }
             nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
             try clientSocket.write(from: sendbuffer , to: serverAddress)
+            sendbuffer.removeAll()
 
             do {
                 try clientSocket.setReadTimeout(value: 10 * 1000)
 
 
-                let _ = DatagramReader(socket: clientSocket, capacity: 1024) { buffer in
+                let _ = try DatagramReader(socket: clientSocket, capacity: 1000) { buffer in
                     // Bloque que extrae los datos del buffer y realiza la acción deseada
-                     var readBuffer = buffer
+                    
+                    var readBuffer = buffer
                     
                     var value = ChatMessage.Init
                     var offset = MemoryLayout<ChatMessage>.size
@@ -75,8 +77,8 @@ class ChatClient {
                             buffer.copyBytes(to: $0, from: offset..<offset+count)
                         }
 
-                        print("Estado: ")
-                        print(accepted)
+                       /* print("Estado: ")
+                        print(accepted)*/
                         
                         
                         readBuffer.removeAll()
@@ -84,8 +86,9 @@ class ChatClient {
                 }
     
     
-            } catch {
-
+            } catch let error {
+                print(error)
+                
             }
  
             let queue = DispatchQueue.global() 
@@ -93,7 +96,20 @@ class ChatClient {
             repeat {
                 if accepted {
                     if let message = readLine(), message != ".quit" {
-                        try clientSocket.write(from: message, to: serverAddress)
+                        queue.async {
+                            do {
+                                // Buffer para mensaje init
+                                let writer = ChatMessage.Writer
+                                var sendbuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: writer) { sendbuffer.append(contentsOf: $0) }
+                                self.nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+                                message.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+                                try clientSocket.write(from: sendbuffer , to: serverAddress)
+                                sendbuffer.removeAll()
+                            } catch  {
+                            }
+                        }
+                        
                     }
                 }
             } while true

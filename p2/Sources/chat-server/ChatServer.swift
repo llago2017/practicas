@@ -72,7 +72,7 @@ class ChatServer {
                         var readBuffer = buffer
                                 
                         
-                        let count = MemoryLayout<ChatMessage>.size
+                        var count = MemoryLayout<ChatMessage>.size
                         var copyBytes = withUnsafeMutableBytes(of: &value) {
                             readBuffer.copyBytes(to: $0, from: 0..<count)
                         }
@@ -82,13 +82,14 @@ class ChatServer {
                         var nickname = buffer.advanced(by: count).withUnsafeBytes {
                                 String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                         }
-                        buffer.removeAll()
-                        readBuffer.removeAll()
                     
 
                     switch value {
-                    case ChatMessage.Init:
-                        print("Mensaje init")
+                        case ChatMessage.Init:
+                            print("Mensaje init")
+
+                            buffer.removeAll()
+                            readBuffer.removeAll()
                             var sendBuffer = Data(capacity: 1000)
                             
                                                                     
@@ -123,6 +124,15 @@ class ChatServer {
                                 print("Error")                    
                             }
                             break;
+                        case .Writer:
+                            count += nickname.count
+
+                            let text = buffer.advanced(by: count + 1).withUnsafeBytes {
+                                String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                            }
+                            print("\(nickname): \(text)")
+                            break;
+
                         default:
                             print("Cualquier cosa")
                             break;
