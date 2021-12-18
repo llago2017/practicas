@@ -30,6 +30,8 @@ class ChatClient {
         // Your code here
          // Your code here
         print("Iniciando cliente")
+        var accepted: Bool = true
+
         do {
             guard let serverAddress = Socket.createAddress(for: host, on: Int32(port)) else {
                 print("Error creating Address")
@@ -46,16 +48,12 @@ class ChatClient {
             try clientSocket.write(from: sendbuffer , to: serverAddress)
 
             do {
-                    try clientSocket.setReadTimeout(value: 10 * 1000)
+                try clientSocket.setReadTimeout(value: 10 * 1000)
 
-                    let (bytesRead, _) = try clientSocket.readDatagram(into: &buffer)
-                    
-                    if bytesRead == 0 && errno == EAGAIN { 
-                        print("Server unreachable")
-                        exit(1)
-                    
-                    }
-                    var readBuffer = buffer
+
+                let _ = DatagramReader(socket: clientSocket, capacity: 1024) { buffer in
+                    // Bloque que extrae los datos del buffer y realiza la acción deseada
+                     var readBuffer = buffer
                     
                     var value = ChatMessage.Init
                     var offset = MemoryLayout<ChatMessage>.size
@@ -71,7 +69,7 @@ class ChatClient {
                         print("Mensaje de bienvenida")
                         //readBuffer = readBuffer.advanced(by:count)
 
-                        var accepted: Bool = true
+                        
                         let count = MemoryLayout<Bool>.size
                         var bytesCopied = withUnsafeMutableBytes(of: &accepted) {
                             buffer.copyBytes(to: $0, from: offset..<offset+count)
@@ -83,15 +81,24 @@ class ChatClient {
                         
                         readBuffer.removeAll()
                     }
-                    
-                } catch {
-                        // Ignored
                 }
+    
+    
+            } catch {
 
+            }
+ 
+            let queue = DispatchQueue.global() 
 
-            
+            repeat {
+                if accepted {
+                    if let message = readLine(), message != ".quit" {
+                        try clientSocket.write(from: message, to: serverAddress)
+                    }
+                }
+            } while true
+                    
 
-            
         } catch let error {
             print("Connection error: \(error)")
         }
