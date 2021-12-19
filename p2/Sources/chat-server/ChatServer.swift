@@ -233,9 +233,7 @@ class ChatServer {
                                             
                                         }
 
-                                    }
-
-                                    print("WRITER received from \(nickname): \(text)")
+                                        print("WRITER received from \(nickname): \(text)")
 
                                     func sendAll(client: Client) {
                                         // Envio el mensaje
@@ -258,6 +256,10 @@ class ChatServer {
                                         }
                                     }
                                     activeClients.forEach(sendAll)
+
+                                    }
+
+                                    
                                     break;
 
                                 default:
