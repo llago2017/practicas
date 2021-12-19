@@ -23,7 +23,9 @@ public struct ArrayQueue<T>: Queue {
     }
 
     public mutating func dequeue() -> T? {
-        guard storage.count == 0 else { return storage.remove(at: 0)}
+        guard storage.count == 0 else { 
+            count -= 1
+            return storage.remove(at: 0)}
             
         return nil
     }
