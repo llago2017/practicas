@@ -46,17 +46,7 @@ public struct ArrayQueue<T>: Queue {
     }
 
     public func findFirst(where predicate: (T) -> Bool) -> T?{
-        
-        for client in storage {
-            if predicate(client) {
-                print("Hola")
-                
-                return client
-            }
-            
-        }
-        
-         return nil
+        return self.storage.first
     }
     
     public mutating func remove(where predicate: (T) -> Bool){

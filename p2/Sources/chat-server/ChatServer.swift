@@ -134,12 +134,61 @@ class ChatServer {
                                             try activeClients.enqueue(newClient)
                                             try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
                                             sendBuffer.removeAll()
+
+                                            func sendAll(client: Client) {
+                                                // Envio el mensaje
+                                                
+                                                var sendBuffer = Data(capacity: 1000)
+                                                withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                                
+                                                "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                "\(nickname) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                                
+                                                do {
+                                                    if client.addres != clientAddress! {
+                                                        try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                                    }
+                                                    
+                                                    sendBuffer.removeAll()
+                                                } catch {
+                                                    print("Error")
+                                                    
+                                                }
+                                            }
+
+                                            activeClients.forEach(sendAll)
                                         }
                                         
                                         
                                     } catch CollectionsError.maxCapacityReached {
+                                        // Primero
+                                        var first = activeClients.findFirst{$0 != nil}
+                                        // Mando mensaje
+                                        func sendAll(client: Client) {
+                                            // Envio el mensaje
+                                                
+                                            var sendBuffer = Data(capacity: 1000)
+                                            withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                                
+                                            "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                            "\(first!.nickname) banned for being idle too long".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                                
+                                            do {
+                                                if client.addres != clientAddress! {
+                                                    try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                                }
+                                                    
+                                                sendBuffer.removeAll()
+                                            } catch {
+                                                print("Error")
+                                                    
+                                            }
+                                        }
+                                        activeClients.forEach(sendAll)
+                                        
                                         // Obtengo el cliente mas antiguo
                                         var oldClient = activeClients.dequeue()
+                                        
                                         // Lo meto en clientes inactivos
                                         if oldClient != nil {
                                             inactiveClients.push(oldClient!)
