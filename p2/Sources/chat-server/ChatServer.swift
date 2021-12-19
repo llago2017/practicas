@@ -168,7 +168,10 @@ class ChatServer {
                                 ": \(text)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
                                                                 
                                 do {
-                                    try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                    if client.addres != clientAddress! {
+                                        try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                    }
+                                    
                                     sendBuffer.removeAll()
                                 } catch {
                                     print("Error")
@@ -203,6 +206,22 @@ class ChatServer {
                 case "Q":
                     exit(1)
                     break;
+                case "L":
+                    print("ACTIVE CLIENTS")
+                    print("==============")
+                    func printClients(client: Client) {
+                                                
+                        let port = Socket.hostnameAndPort(from: client.addres)!.port
+                        let addr = Socket.hostnameAndPort(from: client.addres)!.hostname 
+
+                        let df = DateFormatter()
+                        df.dateFormat = "yy-MMM-dd HH:mm"                     
+                        
+                        print("\(client.nickname) (\(addr):\(port)): \(df.string(from: client.timestamp))")
+                    }
+                        
+                    activeClients.forEach(printClients)
+                    break; 
                     
                 default:            
                     print("Enter 'q' (+ Enter) to quit.")

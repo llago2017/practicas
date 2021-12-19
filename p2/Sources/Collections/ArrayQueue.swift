@@ -31,9 +31,12 @@ public struct ArrayQueue<T>: Queue {
     public func forEach(_ body: (T) throws -> Void) rethrows{
         // No se envia al que manda el writer, que al actualizarse es el ultimo
         var lastUser = storage.count - 1
-        for i in 0...lastUser-1 {
-            try! body(storage[i])
+        if storage.count > 0 {
+            for i in 0...lastUser {
+                try! body(storage[i])
+            }
         }
+        
     }
     
     public func contains(where predicate: (T) -> Bool) -> Bool{
@@ -52,7 +55,7 @@ public struct ArrayQueue<T>: Queue {
         }
         
          return nil
-         }
+    }
     
     public mutating func remove(where predicate: (T) -> Bool){
         var result: Int?
