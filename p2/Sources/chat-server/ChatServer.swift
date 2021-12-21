@@ -291,10 +291,7 @@ class ChatServer {
 
             repeat {   
                 let message = readLine()
-                switch message {
-                case "q":
-                    exit(1)
-                    break;
+                switch message!.uppercased() {
                 case "Q":
                     exit(1)
                     break;
@@ -304,7 +301,7 @@ class ChatServer {
                         
                     activeClients.forEach(printClients)
                     break;
-                case "o" :
+                case "O" :
                     print("OLD CLIENTS")
                     print("==============")
                         
