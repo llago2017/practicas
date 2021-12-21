@@ -14,13 +14,20 @@ if !arguments.isEmpty {
         nick = String(arguments[3])
 
         // Create ChatClient
-        let MyClient = ChatClient(host: host, port: port, nick: nick)
-        do {
-            // Run ChatClient
-            try MyClient.run()
-        } catch {
-            print("Error")
+        if nick != "server" {
+            let MyClient = ChatClient(host: host, port: port, nick: nick)
+            do {
+                // Run ChatClient
+                try MyClient.run()
+            } catch {
+                print("Error")
+            }
+            
+        } else {
+            print("Invalid nickname")
+            
         }
+        
         
 
     } else {
