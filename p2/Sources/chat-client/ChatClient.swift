@@ -125,6 +125,23 @@ class ChatClient {
                             }
                         }
                         
+                    } else {
+                        // Mando mensaje de Logout
+                        queue.async {
+                            do {
+                                // Buffer para mensaje init
+                                let Logout = ChatMessage.Logout
+                                var sendbuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: Logout) { sendbuffer.append(contentsOf: $0) }
+                                self.nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+                                try clientSocket.write(from: sendbuffer , to: serverAddress)
+                                sendbuffer.removeAll()
+                            } catch let error  {
+                                print("Connection error: \(error)")
+                                
+                            }
+                            exit(1)
+                        }
                     }
                 }
                     

@@ -90,6 +90,9 @@ class ChatServer {
                                 readBuffer.copyBytes(to: $0, from: 0..<count)
                             }
 
+                            print(value)
+                            
+
                             readBuffer = readBuffer.advanced(by:count)
 
                             var nickname = buffer.advanced(by: count).withUnsafeBytes {
@@ -206,6 +209,7 @@ class ChatServer {
                                                         
                                     }
 
+
                                     break;
                                 case .Writer:
                                     count += nickname.count
@@ -262,6 +266,10 @@ class ChatServer {
                                     
                                     break;
 
+                                case .Logout:
+                                    print("LOGOUT received from \(nickname)")
+                                    break;
+                                    
                                 default:
                                     print("Cualquier cosa")
                                     break;
