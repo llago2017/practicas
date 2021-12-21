@@ -92,9 +92,6 @@ class ChatServer {
                                 readBuffer.copyBytes(to: $0, from: 0..<count)
                             }
 
-                            print(value)
-                            
-
                             readBuffer = readBuffer.advanced(by:count)
 
                             var nickname = buffer.advanced(by: count).withUnsafeBytes {
@@ -269,7 +266,21 @@ class ChatServer {
                                     break;
 
                                 case .Logout:
-                                    print("LOGOUT received from \(nickname)")
+
+                                    // Compruebo si esta en la lista
+                                    
+                                    var contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
+                                    let fechaDeAhora = Date()
+                                    var outClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+
+                                    if contains {
+                                        print("LOGOUT received from \(nickname)")
+                                        inactiveClients.push(outClient)
+                                        activeClients.remove{ $0.nickname == nickname }
+                                        
+                                    }
+
+                                    
                                     break;
                                     
                                 default:
