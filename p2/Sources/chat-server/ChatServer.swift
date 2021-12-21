@@ -36,6 +36,7 @@ struct InactiveClient {
 
 class ChatServer {
     let port: Int
+    let maxCapacity: Int
     var serverSocket: Socket
     
     
@@ -43,8 +44,9 @@ class ChatServer {
     //var activeCLientrs = ArrayQueue<Client>
     //var InactiveClient = ArrayStack<InactiveClient>
     
-    init(port: Int) throws {
+    init(port: Int, maxCapacity: Int) throws {
         self.port = port
+        self.maxCapacity = maxCapacity
         serverSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
     }
 
@@ -71,7 +73,7 @@ class ChatServer {
             var buffer = Data(capacity: 1000)
             let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
             var value = ChatMessage.Init
-            var activeClients = ArrayQueue<Client>(maxCapacity: 3)
+            var activeClients = ArrayQueue<Client>(maxCapacity: maxCapacity)
             var inactiveClients = ArrayStack<Client>()
 
             queue.async {
