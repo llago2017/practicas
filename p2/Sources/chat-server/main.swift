@@ -13,17 +13,26 @@ if !arguments.isEmpty {
             exit(1)
             
         }
+
+       
+        if maxCapacity! >= 2 && maxCapacity! <= 50 {
+            // Create ChatClient
+            let MyServer = try! ChatServer(port: port!, maxCapacity: maxCapacity!)
+            
+            do {
+                
+                try MyServer.run()
+            } catch {
+                print("Error")
+            }
+            
+        } else {
+            print("Numero de clientes entre 2 y 50")
+            exit(1)            
+        }
         //print("Puerto: \(port)")
 
-        // Create ChatClient
-        let MyServer = try! ChatServer(port: port!, maxCapacity: maxCapacity!)
         
-        do {
-            
-            try MyServer.run()
-        } catch {
-            print("Error")
-        }
         
 
     } else {
