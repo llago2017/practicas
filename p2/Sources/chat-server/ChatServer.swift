@@ -220,7 +220,7 @@ class ChatServer {
 
                                     // Compruebo si esta en la lista
                                     
-                                    var contains = activeClients.contains{ $0.nickname == nickname }
+                                    var contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
 
                                     if contains {
                                         // Lo elimino temporalmente
