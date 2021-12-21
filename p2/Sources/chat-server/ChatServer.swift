@@ -277,6 +277,28 @@ class ChatServer {
                                         print("LOGOUT received from \(nickname)")
                                         inactiveClients.push(outClient)
                                         activeClients.remove{ $0.nickname == nickname }
+
+                                        func sendAll(client: Client) {
+                                            // Envio el mensaje
+                                                
+                                            var sendBuffer = Data(capacity: 1000)
+                                            withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                                
+                                            "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                            "\(nickname) leaves the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                                
+                                            do {
+                                                if client.addres != clientAddress! {
+                                                    try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                                }
+                                                    
+                                                sendBuffer.removeAll()
+                                            } catch {
+                                                print("Error")
+                                                    
+                                            }
+                                        }
+                                        activeClients.forEach(sendAll)
                                         
                                     }
 
