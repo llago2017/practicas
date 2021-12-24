@@ -123,48 +123,46 @@ class ChatClient {
 
             if accepted! {
                 let _ = try DatagramReader(socket: clientSocket, capacity: 1000, handler: handler) 
-            }
-                    
-           
+        
 
-
-            repeat {              
-                let queue = DispatchQueue.global()       
-                if let message = readLine(), message != ".quit" {
-                    queue.async {
-                        do {
-                            // Buffer para mensaje init
-                            let writer = ChatMessage.Writer
-                            var sendbuffer = Data(capacity: 1000)
-                            withUnsafeBytes(of: writer) { sendbuffer.append(contentsOf: $0) }
-                            self.nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
-                            message.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
-                            try clientSocket.write(from: sendbuffer , to: serverAddress)
+                repeat {              
+                    let queue = DispatchQueue.global()       
+                    if let message = readLine(), message != ".quit" {
+                        queue.async {
+                            do {
+                                // Buffer para mensaje init
+                                let writer = ChatMessage.Writer
+                                var sendbuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: writer) { sendbuffer.append(contentsOf: $0) }
+                                self.nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+                                message.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+                                try clientSocket.write(from: sendbuffer , to: serverAddress)
+                                    sendbuffer.removeAll()
+                            } catch  {
+                                print("Error mandando mensaje")              
+                            }
+                        }
+                            
+                    } else {
+                        // Mando mensaje de Logout
+                        queue.async {
+                            do {
+                                // Buffer para mensaje init
+                                let Logout = ChatMessage.Logout
+                                var sendbuffer = Data(capacity: 1000)
+                                withUnsafeBytes(of: Logout) { sendbuffer.append(contentsOf: $0) }
+                                self.nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
+                                try clientSocket.write(from: sendbuffer , to: serverAddress)
                                 sendbuffer.removeAll()
-                        } catch  {
-                            print("Error mandando mensaje")              
+                            } catch let error  {
+                                print("Connection error: \(error)")
+                            
+                            }
+                            exit(1)
                         }
                     }
-                        
-                } else {
-                    // Mando mensaje de Logout
-                    queue.async {
-                        do {
-                            // Buffer para mensaje init
-                            let Logout = ChatMessage.Logout
-                            var sendbuffer = Data(capacity: 1000)
-                            withUnsafeBytes(of: Logout) { sendbuffer.append(contentsOf: $0) }
-                            self.nick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
-                            try clientSocket.write(from: sendbuffer , to: serverAddress)
-                            sendbuffer.removeAll()
-                        } catch let error  {
-                            print("Connection error: \(error)")
-                          
-                        }
-                        exit(1)
-                    }
-                }
-            } while true                      
+                } while true
+            }                      
 
 
         } catch let error {
