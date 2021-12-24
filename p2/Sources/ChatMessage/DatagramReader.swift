@@ -38,7 +38,7 @@ public class DatagramReader {
                     let (bytesRead, address) = try self.readDatagram(from: socket, into: &buffer)
                     handler(buffer, bytesRead, address)  
                          // TODO: main queue, buffer copy
-                    var readBuffer = buffer
+                    /*var readBuffer = buffer
                     
                     var value = ChatMessage.Init
                     var offset = MemoryLayout<ChatMessage>.size
@@ -57,14 +57,10 @@ public class DatagramReader {
                         
                         readBuffer.removeAll()
                     }
-                   // print(accepted)
+                   // print(accepted)*/
                     
                     
                 } catch DatagramReaderError.timeout {
-                    if accepted == nil {
-                        print("Server Unreachable")
-                        exit(1)
-                    }
                     
                 } catch {
                     /// TODO: error handling
