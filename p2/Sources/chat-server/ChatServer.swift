@@ -61,7 +61,15 @@ class ChatServer {
             let df = DateFormatter()
             df.dateFormat = "yy-MMM-dd HH:mm"                     
                         
-            print("\(client.nickname) (\(addr):\(port)): \(df.string(from: client.timestamp))")
+            print("\(client.nickname): \(df.string(from: client.timestamp))")
+        }
+
+        func printOldClients(client: InactiveClient) {
+                                                
+            let df = DateFormatter()
+            df.dateFormat = "yy-MMM-dd HH:mm"                     
+                        
+            print("\(client.nickname): \(df.string(from: client.timestamp))")
         }
 
         
@@ -76,7 +84,7 @@ class ChatServer {
             let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
             var value = ChatMessage.Init
             var activeClients = ArrayQueue<Client>(maxCapacity: maxCapacity)
-            var inactiveClients = ArrayStack<Client>()
+            var inactiveClients = ArrayStack<InactiveClient>()
 
             func handler(buffer: Data, bytesRead: Int, clientAddress: Socket.Address?) {
                 
@@ -166,27 +174,6 @@ class ChatServer {
                                     
                                     sendBuffer.removeAll()
 
-                                    /*func sendAll(client: Client) {
-                                        // Envio el mensaje
-                                                
-                                        var sendBuffer = Data(capacity: 1000)
-                                        withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
-                                                
-                                        "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                        "\(nickname) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                                                                
-                                        do {
-                                            if client.addres != clientAddress! {
-                                                try self.serverSocket.write(from: sendBuffer, to: client.addres)
-                                            }
-                                                    
-                                            sendBuffer.removeAll()
-                                        } catch {
-                                            print("Error")
-                                                    
-                                        }
-                                    }*/
-
                                     activeClients.forEach(sendJoin)
                                 }
                                         
@@ -224,7 +211,8 @@ class ChatServer {
                                         
                                 // Lo meto en clientes inactivos
                                 if oldClient != nil {
-                                    inactiveClients.push(oldClient!)
+                                    var inactive = InactiveClient(nickname: oldClient!.nickname, timestamp: oldClient!.timestamp)
+                                    inactiveClients.push(inactive)
                                     // El nuevo entra en el chat
                                     let fechaDeAhora = Date()
 
@@ -310,7 +298,7 @@ class ChatServer {
                                     
                             var contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
                             let fechaDeAhora = Date()
-                            var outClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+                            var outClient = InactiveClient(nickname: nickname, timestamp: fechaDeAhora )
 
                             if contains {
                                 print("LOGOUT received from \(nickname)")
@@ -371,7 +359,7 @@ class ChatServer {
                     print("OLD CLIENTS")
                     print("==============")
                         
-                    inactiveClients.forEach(printClients)
+                    inactiveClients.forEach(printOldClients)
                     break;
                     
                 default:            
