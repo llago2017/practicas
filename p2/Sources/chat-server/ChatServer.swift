@@ -64,6 +64,8 @@ class ChatServer {
             print("\(client.nickname) (\(addr):\(port)): \(df.string(from: client.timestamp))")
         }
 
+        
+
         do {
             // Your code here
             try serverSocket.listen(on: port)
@@ -93,6 +95,27 @@ class ChatServer {
 
                     var nickname = buffer.advanced(by: count).withUnsafeBytes {
                         String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
+                    }
+
+                    func sendJoin(client: Client) {
+                        // Envio el mensaje
+                                                            
+                        var sendBuffer = Data(capacity: 1000)
+                        withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                                            
+                        "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                        "\(nickname) joins the chat".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                                            
+                        do {
+                            if client.addres != clientAddress! {
+                                try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                            }
+                                                            
+                            sendBuffer.removeAll()
+                        } catch {
+                            print("Error")
+                                                                
+                        }
                     }
                         
 
@@ -143,7 +166,7 @@ class ChatServer {
                                     
                                     sendBuffer.removeAll()
 
-                                    func sendAll(client: Client) {
+                                    /*func sendAll(client: Client) {
                                         // Envio el mensaje
                                                 
                                         var sendBuffer = Data(capacity: 1000)
@@ -162,9 +185,9 @@ class ChatServer {
                                             print("Error")
                                                     
                                         }
-                                    }
+                                    }*/
 
-                                    activeClients.forEach(sendAll)
+                                    activeClients.forEach(sendJoin)
                                 }
                                         
                                         
@@ -211,7 +234,10 @@ class ChatServer {
                                         
                                     do {
                                         try activeClients.enqueue(newClient)
-                                        try self.serverSocket.write(from: sendBuffer, to: clientAddress!)                                   
+                                        try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+
+                                        // Notifico nueva entrada
+                                        activeClients.forEach(sendJoin)                                   
                                     } catch  {
                                         print("Error al incluir usuario al chat")   
                                     }
