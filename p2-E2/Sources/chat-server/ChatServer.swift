@@ -132,106 +132,112 @@ class ChatServer {
                             //buffer.removeAll()
                             readBuffer.removeAll()
                             var sendBuffer = Data(capacity: 1000)
-                                    
-                                                                            
-                            do {
-                                let fechaDeAhora = Date()
-
-                                var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
-                                        
-                                //print(nickname)
-                                        
-                                var contains = activeClients.contains{ $0.nickname == newClient.nickname }
-                                //var ayuda = activeClients.contains(where: {$0.nickname == newClient.nickname})
-                                //print(contains)
-                                        
-                                if contains {  
-                                    print("INIT received form \(nickname): IGNORED. Nick already used")
-                                                                            
-                                    withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
-                                    withUnsafeBytes(of: false) { sendBuffer.append(contentsOf: $0) }
-                                    do {
-                                        try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
-                                    } catch {
-                                        print("Error al mandar mensaje Welcome")
-                                        
-                                    }
-                                    sendBuffer.removeAll()
-                                            
-                                } else {
-                                    print("INIT received form \(nickname): ACCEPTED")
-                                            
-                                    withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
-                                    withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
-                                    
-                                        try activeClients.enqueue(newClient)
-
-                                    do {
-                                        try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
-                                    } catch {
-                                        print("Error al mandar Welcome")
-                                    }
-                                    
-                                    sendBuffer.removeAll()
-
-                                    activeClients.forEach(sendJoin)
-                                }
-                                        
-                                        
-                            } catch /*CollectionsError.maxCapacityReached*/ {
-                                // Primero
-                                print("MaxCapacity Reached")
-                                
-                                var first = activeClients.findFirst{$0 != nil}
-                                // Mando mensaje
-                                func sendAll(client: Client) {
-                                    // Envio el mensaje
-                                                
-                                    var sendBuffer = Data(capacity: 1000)
-                                    withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
-                                                
-                                    "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                    "\(first!.nickname) banned for being idle too long".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                                                                
-                                    do {
-                                        if client.addres != clientAddress! {
-                                            try self.serverSocket.write(from: sendBuffer, to: client.addres)
-                                        }
-                                                    
-                                        sendBuffer.removeAll()
-                                    } catch {
-                                        print("Error")
-                                                    
-                                    }
-                                }
-                                activeClients.forEach(sendAll)
-                                        
-                                // Obtengo el cliente mas antiguo
-                                var oldClient = activeClients.dequeue()
-                                        
-                                // Lo meto en clientes inactivos
-                                if oldClient != nil {
-                                    var inactive = InactiveClient(nickname: oldClient!.nickname, timestamp: oldClient!.timestamp)
-                                    inactiveClients.push(inactive)
-                                    // El nuevo entra en el chat
+                            let loss = (0..<18).map { _ in Int.random(in: 1...100) }
+                            let n = Int.random(in: 1...100)
+                            //print(loss, n, separator: " -> ")
+                            
+                            
+                            if !loss.contains(n) {
+                                                                      
+                                do {
                                     let fechaDeAhora = Date()
 
                                     var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
-                                    withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
-                                    withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
+                                            
+                                    //print(nickname)
+                                            
+                                    var contains = activeClients.contains{ $0.nickname == newClient.nickname }
+                                    //var ayuda = activeClients.contains(where: {$0.nickname == newClient.nickname})
+                                    //print(contains)
+                                            
+                                    if contains {  
+                                        print("INIT received form \(nickname): IGNORED. Nick already used")
+                                                                                
+                                        withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                                        withUnsafeBytes(of: false) { sendBuffer.append(contentsOf: $0) }
+                                        do {
+                                            try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+                                        } catch {
+                                            print("Error al mandar mensaje Welcome")
+                                            
+                                        }
+                                        sendBuffer.removeAll()
+                                                
+                                    } else {
+                                        print("INIT received form \(nickname): ACCEPTED")
+                                                
+                                        withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                                        withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
                                         
-                                    do {
-                                        try activeClients.enqueue(newClient)
-                                        try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+                                            try activeClients.enqueue(newClient)
 
-                                        // Notifico nueva entrada
-                                        activeClients.forEach(sendJoin)                                   
-                                    } catch  {
-                                        print("Error al incluir usuario al chat")   
+                                        do {
+                                            try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+                                        } catch {
+                                            print("Error al mandar Welcome")
+                                        }
+                                        
+                                        sendBuffer.removeAll()
+
+                                        activeClients.forEach(sendJoin)
                                     }
-                                    sendBuffer.removeAll()
-                                }
+                                            
+                                            
+                                } catch /*CollectionsError.maxCapacityReached*/ {
+                                    // Primero
+                                    print("MaxCapacity Reached")
+                                    
+                                    var first = activeClients.findFirst{$0 != nil}
+                                    // Mando mensaje
+                                    func sendAll(client: Client) {
+                                        // Envio el mensaje
+                                                    
+                                        var sendBuffer = Data(capacity: 1000)
+                                        withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
+                                                    
+                                        "server".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                        "\(first!.nickname) banned for being idle too long".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                                                                    
+                                        do {
+                                            if client.addres != clientAddress! {
+                                                try self.serverSocket.write(from: sendBuffer, to: client.addres)
+                                            }
                                                         
+                                            sendBuffer.removeAll()
+                                        } catch {
+                                            print("Error")
+                                                        
+                                        }
+                                    }
+                                    activeClients.forEach(sendAll)
+                                            
+                                    // Obtengo el cliente mas antiguo
+                                    var oldClient = activeClients.dequeue()
+                                            
+                                    // Lo meto en clientes inactivos
+                                    if oldClient != nil {
+                                        var inactive = InactiveClient(nickname: oldClient!.nickname, timestamp: oldClient!.timestamp)
+                                        inactiveClients.push(inactive)
+                                        // El nuevo entra en el chat
+                                        let fechaDeAhora = Date()
+
+                                        var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+                                        withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
+                                        withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
+                                            
+                                        do {
+                                            try activeClients.enqueue(newClient)
+                                            try self.serverSocket.write(from: sendBuffer, to: clientAddress!)
+
+                                            // Notifico nueva entrada
+                                            activeClients.forEach(sendJoin)                                   
+                                        } catch  {
+                                            print("Error al incluir usuario al chat")   
+                                        }
+                                        sendBuffer.removeAll()
+                                    }
+                                                            
+                                }
                             }
 
 
