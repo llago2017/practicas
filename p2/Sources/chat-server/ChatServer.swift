@@ -270,7 +270,7 @@ class ChatServer {
                                     withUnsafeBytes(of: ChatMessage.Server) { sendBuffer.append(contentsOf: $0) }
                                         
                                     nickname.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
-                                    ": \(text)".utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
+                                    text.utf8CString.withUnsafeBytes { sendBuffer.append(contentsOf: $0) }
                                                                         
                                     do {
                                         if client.addres != clientAddress! {
