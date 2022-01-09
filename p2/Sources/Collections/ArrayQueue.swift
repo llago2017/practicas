@@ -4,7 +4,7 @@ public struct ArrayQueue<T>: Queue {
     public var storage = [T]()
 
     public var count: Int = 0
-    public var maxCapacity: Int = 3
+    public var maxCapacity: Int
 
     public init(maxCapacity: Int) {
         self.maxCapacity = maxCapacity
@@ -46,7 +46,7 @@ public struct ArrayQueue<T>: Queue {
     }
 
     public func findFirst(where predicate: (T) -> Bool) -> T?{
-        return self.storage.first
+        return self.storage.first(where: predicate)
     }
     
     public mutating func remove(where predicate: (T) -> Bool){
