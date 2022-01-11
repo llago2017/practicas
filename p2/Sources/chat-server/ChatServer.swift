@@ -178,7 +178,9 @@ class ChatServer {
                                 }
                                         
                                         
-                            } catch /*CollectionsError.maxCapacityReached*/ {
+                            } catch CollectionsError.maxCapacityReached {
+                                
+                                
                                 // Primero
                                 print("MaxCapacity Reached")
                                 
@@ -232,6 +234,8 @@ class ChatServer {
                                     sendBuffer.removeAll()
                                 }
                                                         
+                            } catch {
+                                print("Error inesperado")
                             }
 
 
