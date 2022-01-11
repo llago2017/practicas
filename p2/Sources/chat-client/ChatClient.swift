@@ -114,19 +114,23 @@ class ChatClient {
                     let text = readBuffer.advanced(by: offset + 1).withUnsafeBytes {
                         String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                     }                
-                        
-                    print("\(nickname): \(text)")
-                        
-                    readBuffer.removeAll()
-                }
-            }
+                    
+                    print("\n\(nickname): \(text)")
+                    print(">>", terminator: "")
+                    fflush(stdout)
 
+                    readBuffer.removeAll()                  
+                }
+                
+            }
+            
             if accepted! {
                 let _ = try DatagramReader(socket: clientSocket, capacity: 1000, handler: handler) 
         
 
-                repeat {              
-                    let queue = DispatchQueue.global()       
+                repeat {
+                    print(">>", terminator: "")             
+                    let queue = DispatchQueue.global() 
                     if let message = readLine(), message != ".quit" {
                         queue.async {
                             do {
