@@ -1,4 +1,4 @@
-import Socket
+//import Socket
 
 public struct ArrayQueue<T>: Queue {
     public var storage = [T]()
@@ -32,7 +32,7 @@ public struct ArrayQueue<T>: Queue {
     
     public func forEach(_ body: (T) throws -> Void) rethrows{
         // No se envia al que manda el writer, que al actualizarse es el ultimo
-        var lastUser = storage.count - 1
+        let lastUser = storage.count - 1
         if storage.count > 0 {
             for i in 0...lastUser {
                 try! body(storage[i])
@@ -51,7 +51,7 @@ public struct ArrayQueue<T>: Queue {
     
     public mutating func remove(where predicate: (T) -> Bool){
         var result: Int?
-        result = self.storage.index(where: predicate)
+        result = self.storage.firstIndex(where: predicate)
 
         //print("Elimino en el index \(result)")
         self.storage.remove(at: result!)
