@@ -40,14 +40,18 @@ class ChatServer {
     var serverSocket: Socket
     
     
-
-    //var activeCLientrs = ArrayQueue<Client>
-    //var InactiveClient = ArrayStack<InactiveClient>
-    
     init(port: Int, maxCapacity: Int) throws {
-        self.port = port
-        self.maxCapacity = maxCapacity
-        serverSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
+       
+        if maxCapacity >= 2 && maxCapacity <= 50 {
+            self.port = port
+            self.maxCapacity = maxCapacity
+            serverSocket = try Socket.create(family: .inet, type: .datagram, proto: .udp)
+            
+        } else {
+            throw ChatServerError.protocolError
+                    
+        }
+        
     }
 
 
@@ -80,8 +84,8 @@ class ChatServer {
 
             print("Listening on \(port)")
                     
-            var buffer = Data(capacity: 1000)
-            let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
+            //var buffer = Data(capacity: 1000)
+            //let queue = DispatchQueue.global() // Envío trabajos que ejecuta en paralelo
             var value = ChatMessage.Init
             var activeClients = ArrayQueue<Client>(maxCapacity: maxCapacity)
             var inactiveClients = ArrayStack<InactiveClient>()
@@ -95,13 +99,13 @@ class ChatServer {
                                     
                             
                     var count = MemoryLayout<ChatMessage>.size
-                    var copyBytes = withUnsafeMutableBytes(of: &value) {
+                    var _ = withUnsafeMutableBytes(of: &value) {
                         readBuffer.copyBytes(to: $0, from: 0..<count)
                     }
 
                     readBuffer = readBuffer.advanced(by:count)
 
-                    var nickname = buffer.advanced(by: count).withUnsafeBytes {
+                    let nickname = buffer.advanced(by: count).withUnsafeBytes {
                         String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                     }
 
@@ -137,11 +141,11 @@ class ChatServer {
                             do {
                                 let fechaDeAhora = Date()
 
-                                var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+                                let newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
                                         
                                 //print(nickname)
                                         
-                                var contains = activeClients.contains{ $0.nickname == newClient.nickname }
+                                let contains = activeClients.contains{ $0.nickname == newClient.nickname }
                                 //var ayuda = activeClients.contains(where: {$0.nickname == newClient.nickname})
                                 //print(contains)
                                         
@@ -179,12 +183,8 @@ class ChatServer {
                                         
                                         
                             } catch CollectionsError.maxCapacityReached {
-                                
-                                
                                 // Primero
-                                print("MaxCapacity Reached")
-                                
-                                var first = activeClients.findFirst{$0 != nil}
+                                let first = activeClients.findFirst{$0 != nil}
                                 // Mando mensaje
                                 func sendAll(client: Client) {
                                     // Envio el mensaje
@@ -209,16 +209,16 @@ class ChatServer {
                                 activeClients.forEach(sendAll)
                                         
                                 // Obtengo el cliente mas antiguo
-                                var oldClient = activeClients.dequeue()
+                                let oldClient = activeClients.dequeue()
                                         
                                 // Lo meto en clientes inactivos
                                 if oldClient != nil {
-                                    var inactive = InactiveClient(nickname: oldClient!.nickname, timestamp: oldClient!.timestamp)
+                                    let inactive = InactiveClient(nickname: oldClient!.nickname, timestamp: oldClient!.timestamp)
                                     inactiveClients.push(inactive)
                                     // El nuevo entra en el chat
                                     let fechaDeAhora = Date()
 
-                                    var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+                                    let newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
                                     withUnsafeBytes(of: ChatMessage.Welcome) { sendBuffer.append(contentsOf: $0) }
                                     withUnsafeBytes(of: true) { sendBuffer.append(contentsOf: $0) }
                                         
@@ -250,7 +250,7 @@ class ChatServer {
 
                             // Compruebo si esta en la lista
                                     
-                            var contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
+                            let contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
 
                             if contains {
                                 // Lo elimino temporalmente
@@ -258,7 +258,7 @@ class ChatServer {
 
                                 // Lo vuelvo a meter
                                 let fechaDeAhora = Date()
-                                var newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
+                                let newClient = Client(nickname: nickname, addres: clientAddress!, timestamp: fechaDeAhora )
                                 do {
                                     try activeClients.enqueue(newClient)
                                 } catch  {
@@ -300,9 +300,9 @@ class ChatServer {
 
                             // Compruebo si esta en la lista
                                     
-                            var contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
+                            let contains = activeClients.contains{ $0.nickname == nickname && $0.addres == clientAddress! }
                             let fechaDeAhora = Date()
-                            var outClient = InactiveClient(nickname: nickname, timestamp: fechaDeAhora )
+                            let outClient = InactiveClient(nickname: nickname, timestamp: fechaDeAhora )
 
                             if contains {
                                 print("LOGOUT received from \(nickname)")
@@ -335,7 +335,13 @@ class ChatServer {
                             break;
                                     
                         default:
-                            print("Cualquier cosa")
+                            do {
+                                try throwError()
+                            } catch let error {
+                                print(error, " Mensaje o argumento inesperado", separator: ":")
+                                
+                            }
+                            
                             break;
                                     
                                     
@@ -343,9 +349,12 @@ class ChatServer {
                 }
             
             }
-            let _ = try DatagramReader(socket: serverSocket, capacity: 1000, handler: handler)
-   
-                      
+
+            func throwError() throws {
+                throw ChatServerError.protocolError
+            }
+
+            let _ = DatagramReader(socket: serverSocket, capacity: 1000, handler: handler)
 
             repeat {   
                 let message = readLine()

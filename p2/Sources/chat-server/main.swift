@@ -5,31 +5,31 @@ var arguments = CommandLine.arguments
 if !arguments.isEmpty {
     if arguments.count == 3 {
 
-        let port = Int(arguments[1])
-        let maxCapacity = Int(arguments[2])
-
-        if port == nil || maxCapacity == nil {
-            print("Argumentos incorrectos")
-            exit(1)
-            
-        }
-
-       
-        if maxCapacity! >= 2 && maxCapacity! <= 50 {
+        
             // Create ChatClient
-            let MyServer = try! ChatServer(port: port!, maxCapacity: maxCapacity!)
-            
             do {
+                let port = Int(arguments[1])
+                let maxCapacity = Int(arguments[2])
+                if port == nil || maxCapacity == nil {
+                    throw ChatServerError.protocolError   
+                }
                 
-                try MyServer.run()
-            } catch {
-                print("Error")
+                let MyServer = try ChatServer(port: port!, maxCapacity: maxCapacity!)
+                 do {
+                    try MyServer.run()
+                } catch let error {
+                    print("Error: ", error)
+                }
+            } catch let error {
+                print(error, " Mensaje o argumento inesperado", separator: ":")
+                print("Inicia el servidor: run chat-server <Puerto> <Max. Clientes>")
+                print("Numero Max. Clientes entre 2 y 50")
+                exit(1)
             }
             
-        } else {
-            print("Numero de clientes entre 2 y 50")
-            exit(1)            
-        }
+            
+           
+            
         //print("Puerto: \(port)")
 
         
