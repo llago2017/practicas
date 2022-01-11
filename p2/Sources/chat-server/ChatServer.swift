@@ -61,7 +61,7 @@ class ChatServer {
             let df = DateFormatter()
             df.dateFormat = "yy-MMM-dd HH:mm"                     
                         
-            print("\(client.nickname): \(df.string(from: client.timestamp))")
+            print("\(client.nickname) (\(addr):\(port)): \(df.string(from: client.timestamp))")
         }
 
         func printOldClients(client: InactiveClient) {
