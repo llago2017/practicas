@@ -59,15 +59,15 @@ class ChatClient {
 
                 var readBuffer = buffer
                 var value = ChatMessage.Init
-                var offset = MemoryLayout<ChatMessage>.size
-                var copyBytes = withUnsafeMutableBytes(of: &value) {
+                let offset = MemoryLayout<ChatMessage>.size
+                var _ = withUnsafeMutableBytes(of: &value) {
                     buffer.copyBytes(to: $0, from: 0..<offset)
                 }
 
                 if value == ChatMessage.Welcome {
                             
                     let count = MemoryLayout<Bool>.size
-                    var bytesCopied = withUnsafeMutableBytes(of: &accepted) {
+                    var _ = withUnsafeMutableBytes(of: &accepted) {
                         readBuffer.copyBytes(to: $0, from: offset..<offset+count)
                     }
 
@@ -97,7 +97,7 @@ class ChatClient {
 
                 var offset = MemoryLayout<ChatMessage>.size
 
-                var copyBytes = withUnsafeMutableBytes(of: &value) {
+                var _ = withUnsafeMutableBytes(of: &value) {
 
                     buffer.copyBytes(to: $0, from: 0..<offset)
 
@@ -105,7 +105,7 @@ class ChatClient {
 
                     
                 if value == ChatMessage.Server {
-                    var nickname = readBuffer.advanced(by: offset).withUnsafeBytes {
+                    let nickname = readBuffer.advanced(by: offset).withUnsafeBytes {
                         String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                     }    
 
@@ -116,7 +116,7 @@ class ChatClient {
                     }                
                     
                     print("\n\(nickname): \(text)")
-                    print(">>", terminator: "")
+                    print(">> ", terminator: "")
                     fflush(stdout)
 
                     readBuffer.removeAll()                  
@@ -125,11 +125,11 @@ class ChatClient {
             }
             
             if accepted! {
-                let _ = try DatagramReader(socket: clientSocket, capacity: 1000, handler: handler) 
+                let _ = DatagramReader(socket: clientSocket, capacity: 1000, handler: handler) 
         
 
                 repeat {
-                    print(">>", terminator: "")             
+                    print(">> ", terminator: "")             
                     let queue = DispatchQueue.global() 
                     if let message = readLine(), message != ".quit" {
                         queue.async {

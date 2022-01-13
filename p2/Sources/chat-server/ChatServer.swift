@@ -376,7 +376,7 @@ class ChatServer {
                     break;
                     
                 default:            
-                    print("Enter 'q' (+ Enter) to quit.")
+                    print("Enter 'q' (+ Enter) to quit, 'l' to show active clients or 'o' to show old clients.")
                 }
    
             } while true
