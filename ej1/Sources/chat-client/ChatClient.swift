@@ -166,7 +166,7 @@ class ChatClient {
                                         withUnsafeBytes(of: writer) { sendbuffer.append(contentsOf: $0) }
                                         let targetNick = String(words[1])
                                         targetNick.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
-                                        let text = words[1...].joined(separator: " ")
+                                        let text = words[2...].joined(separator: " ")
                                         text.utf8CString.withUnsafeBytes { sendbuffer.append(contentsOf: $0) }
                                         try clientSocket.write(from: sendbuffer , to: serverAddress)
                                             sendbuffer.removeAll()

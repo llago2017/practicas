@@ -1,4 +1,4 @@
-protocol Queue {
+public protocol Queue {
     associatedtype Element
     
     mutating func enqueue(_ value: Element)
@@ -96,6 +96,8 @@ extension LinkedList {
 
 public struct ListQueue<T> : Queue {
     private var storage = LinkedList<T>()
+
+    public init() {}
 
 }
     

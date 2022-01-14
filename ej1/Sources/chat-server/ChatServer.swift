@@ -340,10 +340,10 @@ class ChatServer {
                             let text = buffer.advanced(by: count + 1).withUnsafeBytes {
                                 String(cString: $0.bindMemory(to: UInt8.self).baseAddress!)
                             }
-                            var sender = activeClients.findFirst{$0.addres == clientAddress!}
-
+                            var sender = activeClients.findFirst{$0.addres == clientAddress!}                           
                             
                             if sender != nil {
+                                print("PRIVATE from \(sender!.nickname) to \(nickname): \(text)")
                                 func sendAll(client: Client) {
                                     // Envio el mensaje
                                                 
