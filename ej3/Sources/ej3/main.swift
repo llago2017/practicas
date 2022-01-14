@@ -44,49 +44,6 @@ extension LinkedList {
         return node?.value    // Devuelvo el nodo que acabo de borrar
     }
     
-    func node(at index: Int) -> Node<T>? {
-        var i = 0
-        var node = head
-        while node != nil && i < index {
-            node = node!.next
-            i = i+1
-        }
-        return node
-    }
-    
-    public mutating func remove(at index: Int) -> T? {
-        guard index > 0 else {
-            return pop()
-        }
-        
-        let prev = node(at: index - 1)
-        let cepillar = prev?.next
-        prev?.next = cepillar?.next
-        
-        if cepillar?.next == nil {
-            tail = prev
-            tail?.next = nil
-        }
-        
-        return cepillar?.value
-    }
-    
-    public mutating func removeLast() -> T? {
-        guard let head = head else { return nil }
-        var test = head
-        var i = 0
-        // Busco el numero del ultimo var prev = node(at: count-1)
-        while test.next != nil {
-            test = test.next!
-            i += 1
-        }
-        
-        let prev = node(at: i-1)
-        tail = prev
-        tail?.next = nil
-        
-        return test.value
-    }
     
     public func findFirst() -> T? {
         guard head != nil else {return nil}
